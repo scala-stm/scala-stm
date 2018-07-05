@@ -30,27 +30,25 @@ parallelExecution in Test := false
 ////////////////////
 // publishing
 
-pomExtra := {
-  <url>http://nbronson.github.com/scala-stm/</url>
-  <licenses>
-    <license>
-      <name>BSD</name>
-      <url>https://github.com/nbronson/scala-stm/blob/master/LICENSE.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <connection>scm:git:git@github.com:nbronson/scala-stm.git</connection>
-    <url>git@github.com:nbronson/scala-stm.git</url>
-  </scm>
-  <developers>
-    <developer>
-      <id>nbronson</id>
-      <name>Nathan Bronson</name>
-      <email>ngbronson@gmail.com</email>
-    </developer>
-  </developers>
-}
+homepage := Some(url("https://nbronson.github.com/scala-stm/"))
+
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/scala-stm/scala-stm"),
+    "scm:git:git@github.com:scala-stm/scala-stm.git"
+  )
+)
+
+licenses := Seq("""BSD 3-Clause "New" or "Revised" License""" -> url("https://spdx.org/licenses/BSD-3-Clause"))
+
+developers := List(
+  Developer(
+    "nbronson",
+    "Nathan Bronson",
+    "ngbronson@gmail.com",
+    url("https://github.com/nbronson")
+  )
+)
 
 publishMavenStyle := true
 
