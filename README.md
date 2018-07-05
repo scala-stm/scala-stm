@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/scala-stm/scala-stm.svg?branch=master)](https://travis-ci.org/scala-stm/scala-stm)
+========
+
 ScalaSTM is a lightweight software transactional memory for Scala,
 inspired by the STMs in Haskell and Clojure.
 
