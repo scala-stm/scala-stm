@@ -2,22 +2,24 @@
 
 package scala.concurrent.stm
 
-import scala.collection.{generic, immutable, mutable}
+import scala.concurrent.stm.compat._
+
+import scala.collection.{immutable, mutable, generic}
 import scala.language.implicitConversions
 
 object TMap {
 
-  object View extends generic.MutableMapFactory[View] {
+  object View extends TMapViewCompanion {
 
-    implicit def canBuildFrom[A, B]: generic.CanBuildFrom[Coll, (A, B), View[A, B]] = new MapCanBuildFrom[A, B]
+    implicit def canBuildFrom[A, B]: CompatBuildFrom[TMap.View[_, _], (A, B), TMap.View[A, B]] = canBuildFromImpl[A, B]
 
     def empty[A, B]: View[A, B] = TMap.empty[A, B].single
 
-    override def newBuilder[A, B]: mutable.Builder[(A, B), View[A, B]] = new mutable.Builder[(A, B), View[A, B]] {
+    override def newBuilder[A, B]: mutable.Builder[(A, B), TMap.View[A, B]] = new TMapViewBuilder[A, B] {
       private val underlying = TMap.newBuilder[A, B]
 
       def clear(): Unit = underlying.clear()
-      def += (kv: (A, B)): this.type = { underlying += kv ; this }
+      def addOne(elem: (A, B)): this.type = { underlying += elem ; this }
       def result(): View[A, B] = underlying.result().single
     }
 
@@ -25,7 +27,8 @@ object TMap {
   }
 
   /** A `Map` that provides atomic execution of all of its methods. */
-  trait View[A, B] extends mutable.Map[A, B] with mutable.MapLike[A, B, View[A, B]] with TxnDebuggable {
+  trait View[A, B] extends mutable.Map[A, B] with TMapViewTemplate[A, B] with TxnDebuggable {
+
     /** Returns the `TMap` perspective on this transactional map, which
      *  provides map functionality only inside atomic blocks.
      */
@@ -40,7 +43,7 @@ object TMap {
 
     override protected[this] def newBuilder: mutable.Builder[(A, B), View[A, B]] = View.newBuilder[A, B]
 
-    override def stringPrefix = "TMap"
+    override def className: String = "TMap"
   }
 
 
@@ -69,7 +72,7 @@ object TMap {
  *  The keys (with type `A`) must be immutable, or at least not modified while
  *  they are in the map.  The `TMap` implementation assumes that it can safely
  *  perform key equality and hash checks outside a transaction without
- *  affecting atomicity. 
+ *  affecting atomicity.
  *
  *  @author Nathan Bronson
  */
@@ -107,14 +110,18 @@ trait TMap[A, B] extends TxnDebuggable {
   // conversion.  They are exactly the methods of mutable.Map whose return type
   // is this.type.  Note that there are other methods of mutable.Map that we
   // allow to use the implicit mechanism, such as getOrElseUpdate(k).
-  
+
   def += (kv: (A, B))(implicit txn: InTxn): this.type = { put(kv._1, kv._2) ; this }
   def += (kv1: (A, B), kv2: (A, B), kvs: (A, B)*)(implicit txn: InTxn): this.type = { this += kv1 += kv2 ++= kvs }
-  def ++= (kvs: TraversableOnce[(A, B)])(implicit txn: InTxn): this.type = { for (kv <- kvs) this += kv ; this }
+  def ++= (kvs: IterableOnce[(A, B)])(implicit txn: InTxn): this.type = { for (kv <- kvs.iterator) this += kv ; this }
   def -= (k: A)(implicit txn: InTxn): this.type = { remove(k) ; this }
   def -= (k1: A, k2: A, ks: A*)(implicit txn: InTxn): this.type = { this -= k1 -= k2 --= ks }
-  def --= (ks: TraversableOnce[A])(implicit txn: InTxn): this.type = { for (k <- ks) this -= k ; this }
+  def --= (ks: IterableOnce[A])(implicit txn: InTxn): this.type = { for (k <- ks.iterator) this -= k ; this }
 
   def transform(f: (A, B) => B)(implicit txn: InTxn): this.type
-  def retain(p: (A, B) => Boolean)(implicit txn: InTxn): this.type
+
+  @deprecated("Use .filterInPlace instead of .retain", "0.8")
+  @`inline` final def retain(p: (A, B) => Boolean)(implicit txn: InTxn): this.type = filterInPlace(p.tupled)
+
+  def filterInPlace(p: ((A, B)) => Boolean)(implicit txn: InTxn): this.type
 }

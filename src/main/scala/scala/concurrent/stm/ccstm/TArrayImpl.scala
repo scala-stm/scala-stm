@@ -9,13 +9,14 @@ import scala.collection.immutable
 import scala.concurrent.stm.skel.AtomicArray
 import scala.reflect.ClassTag
 
+import scala.concurrent.stm.compat._
 
 private[ccstm] class TArrayImpl[A](private val values: AtomicArray[A])(implicit m: ClassTag[A]) extends TArray[A] with TArray.View[A] {
   import TArray._
 
   def this(length0: Int)(implicit m: ClassTag[A]) = this(AtomicArray[A](length0))
 
-  def this(data0: TraversableOnce[A])(implicit m: ClassTag[A]) = this(AtomicArray[A](data0))
+  def this(data0: IterableOnce[A])(implicit m: ClassTag[A]) = this(AtomicArray[A](data0))
 
   val length: Int = values.length
 

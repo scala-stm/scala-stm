@@ -4,18 +4,20 @@ package scala.concurrent.stm
 package skel
 
 import scala.collection.mutable
+
+import scala.concurrent.stm.compat._
 import scala.concurrent.stm.skel.TxnHashTrie.SetBuildingNode
 
 private[stm] object HashTrieTSet {
 
   def empty[A]: TSet[A] = new HashTrieTSet(Ref(TxnHashTrie.emptySetNode[A]).single)
 
-  def newBuilder[A]: mutable.Builder[A, TSet[A]] = new mutable.Builder[A, TSet[A]] {
+  def newBuilder[A]: HashTrieTSetBuilder[A] = new HashTrieTSetBuilder[A] {
     var root: SetBuildingNode[A] = TxnHashTrie.emptySetBuildingNode[A]
 
     def clear(): Unit = { root = TxnHashTrie.emptySetBuildingNode[A] }
 
-    def += (elem: A): this.type = { root = TxnHashTrie.buildingAdd(root, elem) ; this }
+    def addOne(elem: A): this.type = { root = TxnHashTrie.buildingAdd(root, elem) ; this }
 
     def result(): TSet[A] = {
       val r = root
@@ -25,12 +27,14 @@ private[stm] object HashTrieTSet {
   }
 }
 
-private[skel] class HashTrieTSet[A] private (root0: Ref.View[TxnHashTrie.SetNode[A]]
-                                              ) extends TxnHashTrie[A, AnyRef](root0) with TSetViaClone[A] {
+private[skel] class HashTrieTSet[A] private (root0: Ref.View[TxnHashTrie.SetNode[A]])
+  extends TxnHashTrie[A, AnyRef](root0)
+  with TSetViaClone[A]
+  with HashTrieTSetTemplate[A] {
 
   //// construction
 
-  override def empty: TSet.View[A] = new HashTrieTSet(Ref(TxnHashTrie.emptySetNode[A]).single)  
+  override def empty: TSet.View[A] = new HashTrieTSet(Ref(TxnHashTrie.emptySetNode[A]).single)
   override def clone: HashTrieTSet[A] = new HashTrieTSet(cloneRoot)
 
   //// TSet.View aggregates
@@ -44,12 +48,13 @@ private[skel] class HashTrieTSet[A] private (root0: Ref.View[TxnHashTrie.SetNode
   //// TSet.View per-element
 
   def contains(elem: A): Boolean = singleContains(elem)
+  def get(elem: A): Option[A] = if (singleContains(elem)) Some(elem) else None
 
   override def add(elem: A): Boolean = singlePut(elem, null).isEmpty
-  def += (elem: A): this.type = { singlePut(elem, null) ; this }
+  def addOne(elem: A): this.type = { singlePut(elem, null) ; this }
 
   override def remove(elem: A): Boolean = singleRemove(elem).isDefined
-  def -= (elem: A): this.type = { singleRemove(elem) ; this }
+  def subtractOne(elem: A): this.type = { singleRemove(elem) ; this }
 
   //// optimized TSet versions
 
@@ -61,5 +66,5 @@ private[skel] class HashTrieTSet[A] private (root0: Ref.View[TxnHashTrie.SetNode
   def add(elem: A)(implicit txn: InTxn): Boolean = txnPut(elem, null ).isEmpty
   def remove(elem: A)(implicit txn: InTxn): Boolean = txnRemove(elem).isDefined
 
-  def retain(p: (A) => Boolean)(implicit txn: InTxn): this.type = { single retain p ; this }
+  def filterInPlace(p: (A) => Boolean)(implicit txn: InTxn): this.type = { single filterInPlace p ; this }
 }

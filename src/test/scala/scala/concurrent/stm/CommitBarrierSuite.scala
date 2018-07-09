@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 
 import org.scalatest.FunSuite
 
-import scala.concurrent.forkjoin.LinkedTransferQueue
+import java.util.concurrent.LinkedTransferQueue
 import scala.concurrent.stm.skel.SimpleRandom
 import scala.util.control.Breaks
 
@@ -421,7 +421,7 @@ class CommitBarrierSuite extends FunSuite {
 
       val t1 = new Thread() {
         override def run(): Unit = {
-          cb1m1.atomic { implicit txn => a1() = a1() + 1 } 
+          cb1m1.atomic { implicit txn => a1() = a1() + 1 }
         }
       }
       val t2 = new Thread() {

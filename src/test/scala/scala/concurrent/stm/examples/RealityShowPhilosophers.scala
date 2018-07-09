@@ -42,7 +42,7 @@ object RealityShowPhilosophers {
       "%s is %5.2f%% done".format(name, mealsEaten.single() * 100.0 / meals)
   }
 
-  class CameraThread(intervalMilli: Int, forks: Seq[Fork], philosophers: Seq[PhilosopherThread]) extends Thread {
+  class CameraThread(intervalMilli: Int, forks: collection.Seq[Fork], philosophers: collection.Seq[PhilosopherThread]) extends Thread {
 
     @tailrec final override def run(): Unit = {
       Thread.sleep(intervalMilli)
@@ -70,7 +70,7 @@ object RealityShowPhilosophers {
 
   def time(names: Seq[String], meals: Int): Long = {
     val forks = Array.tabulate(names.size) { _ => new Fork }
-    val pthreads = Array.tabulate(names.size) { i => new PhilosopherThread(names(i), meals, forks(i), forks((i + 1) % forks.length)) }
+    val pthreads = Array.tabulate(names.size) { i => new PhilosopherThread(names(i), meals, forks(i), forks((i + 1) % forks.length)) }.toSeq
     val camera = new CameraThread(1000 / 60, forks, pthreads)
     val start = System.currentTimeMillis
     camera.start()

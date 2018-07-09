@@ -2,22 +2,24 @@
 
 package scala.concurrent.stm
 
-import scala.collection.{generic, immutable, mutable}
+import scala.concurrent.stm.compat._
+
+import scala.collection.{immutable, mutable, generic}
 import scala.language.implicitConversions
 
 object TSet {
 
-  object View extends generic.MutableSetFactory[View] {
+  object View extends TSetViewCompanion {
 
-    implicit def canBuildFrom[A]: generic.CanBuildFrom[Coll, A, View[A]] = setCanBuildFrom[A]
+    implicit def canBuildFrom[A]: CompatBuildFrom[TSet.View[_], A, TSet.View[A]] = canBuildFromImpl
 
     override def empty[A]: View[A] = TSet.empty[A].single
 
-    override def newBuilder[A]: mutable.Builder[A, View[A]] = new mutable.Builder[A, View[A]] {
+    override def newBuilder[A]: mutable.Builder[A, TSet.View[A]] = new TSetViewBuilder[A] {
       private val underlying = TSet.newBuilder[A]
 
       def clear(): Unit = underlying.clear()
-      def += (x: A): this.type = { underlying += x ; this }
+      def addOne(elem: A): this.type = { underlying += elem ; this }
       def result(): View[A] = underlying.result().single
     }
 
@@ -25,7 +27,7 @@ object TSet {
   }
 
   /** A `Set` that provides atomic execution of all of its methods. */
-  trait View[A] extends mutable.Set[A] with mutable.SetLike[A, View[A]] with TxnDebuggable {
+  trait View[A] extends mutable.Set[A] with TSetViewTemplate[A] with TxnDebuggable {
 
     /** Returns the `TSet` perspective on this transactional set, which
      *  provides set functionality only inside atomic blocks.
@@ -37,13 +39,11 @@ object TSet {
     /** Takes an atomic snapshot of this transactional set. */
     def snapshot: immutable.Set[A]
 
-    override def empty: View[A] = TSet.empty[A].single
-    override def companion: generic.GenericCompanion[View] = View    
-    override protected[this] def newBuilder: mutable.Builder[A, View[A]] = View.newBuilder[A]
+    override protected[this] def newBuilder: mutable.Builder[A, TSet.View[A]] = TSet.View.newBuilder[A]
 
-    override def stringPrefix = "TSet"
+    override def className: String = "TSet"
   }
-  
+
 
   /** Constructs and returns a new empty `TSet`. */
   def empty[A]: TSet[A] = impl.STMImpl.instance.newTSet[A]
@@ -70,7 +70,7 @@ object TSet {
  *  The elements (with type `A`) must be immutable, or at least not modified
  *  while they are in the set.  The `TSet` implementation assumes that it can
  *  safely perform equality and hash checks outside a transaction without
- *  affecting atomicity. 
+ *  affecting atomicity.
  *
  *  @author Nathan Bronson
  */
@@ -103,13 +103,17 @@ trait TSet[A] extends TxnDebuggable {
   // The following methods return the wrong receiver when invoked via the asSet
   // conversion.  They are exactly the methods of mutable.Set whose return type
   // is this.type.
-  
+
   def += (x: A)(implicit txn: InTxn): this.type = { add(x) ; this }
   def += (x1: A, x2: A, xs: A*)(implicit txn: InTxn): this.type = { this += x1 += x2 ++= xs }
-  def ++= (xs: TraversableOnce[A])(implicit txn: InTxn): this.type = { for (x <- xs) this += x ; this }
+  def ++= (xs: IterableOnce[A])(implicit txn: InTxn): this.type = { for (x <- xs.iterator) this += x ; this }
   def -= (x: A)(implicit txn: InTxn): this.type = { remove(x) ; this }
   def -= (x1: A, x2: A, xs: A*)(implicit txn: InTxn): this.type = { this -= x1 -= x2 --= xs }
-  def --= (xs: TraversableOnce[A])(implicit txn: InTxn): this.type = { for (x <- xs) this -= x ; this }
+  def --= (xs: IterableOnce[A])(implicit txn: InTxn): this.type = { for (x <- xs.iterator) this -= x ; this }
 
-  def retain(p: A => Boolean)(implicit txn: InTxn): this.type
+
+  @deprecated("Use .filterInPlace instead of .retain", "0.8")
+  @`inline` final def retain(p: A => Boolean)(implicit txn: InTxn): this.type = filterInPlace(p)
+
+  def filterInPlace(p: A => Boolean)(implicit txn: InTxn): this.type
 }

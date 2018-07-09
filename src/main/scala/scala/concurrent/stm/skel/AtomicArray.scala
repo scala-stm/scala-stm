@@ -2,10 +2,11 @@
 
 package scala.concurrent.stm.skel
 
+import scala.concurrent.stm.compat._
+
 import java.util.concurrent.atomic._
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
@@ -28,7 +29,7 @@ import scala.reflect.ClassTag
  *
  *  @author Nathan Bronson
  */
-abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.ArrayLike[T, AtomicArray[T]] {
+abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with AtomicArrayTemplate[T] {
 
   // We choose to store Boolean-s (and other small primitives) each in their
   // own Int.  This wastes space.  Another option would be to pack values into
@@ -39,9 +40,6 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.ArrayLi
   // which case volatile reads and writes of byte-sized memory locations can be
   // performed directly.  compareAndSet of bytes would have to be emulated by
   // integer-sized CAS.
-
-  override protected[this] def thisCollection: AtomicArray[T] = this
-  override protected[this] def toCollection(repr: AtomicArray[T]): AtomicArray[T] = repr
 
   /** The length of the array */
   def length: Int
@@ -65,8 +63,8 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.ArrayLi
     if (compareAndSet(index, before, f(before))) before else getAndTransform(index)(f)
   }
 
-  override def stringPrefix = "AtomicArray"
-  
+  override def className = "AtomicArray"
+
   /** Clones this object, including the underlying Array. */
   override def clone: AtomicArray[T] = {
     val b = newBuilder
@@ -78,7 +76,7 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.ArrayLi
   override def newBuilder: AtomicArrayBuilder[T] = throw new AbstractMethodError
 }
 
-object AtomicArray {
+object AtomicArray extends AtomicArrayCompanion {
 
   def apply[T](size: Int)(implicit m: ClassTag[T]): AtomicArray[T] = {
     (m.newArray(0).asInstanceOf[AnyRef] match {
@@ -107,10 +105,10 @@ object AtomicArray {
   def apply[T <: AnyRef](elems: Array[T]) =
     new ofRef(new AtomicReferenceArray(elems.asInstanceOf[Array[AnyRef]]).asInstanceOf[AtomicReferenceArray[T]])
 
-  def apply[T](elems: TraversableOnce[T])(implicit m: ClassTag[T]): AtomicArray[T] = {
+  def apply[T](elems: IterableOnce[T])(implicit m: ClassTag[T]): AtomicArray[T] = {
     val array: AnyRef = elems match {
       case w: mutable.WrappedArray[_] => w.array // we're going to copy out regardless, no need to duplicate right now
-      case _ => elems.toArray
+      case _ => elems.iterator.toArray
     }
     val result = array match {
       case x: Array[Boolean]  => apply(x)
@@ -127,18 +125,8 @@ object AtomicArray {
     result.asInstanceOf[AtomicArray[T]]
   }
 
-  
-  implicit def canBuildFrom[T](implicit m: ClassTag[T]): CanBuildFrom[AtomicArray[_], T, AtomicArray[T]] = {
-    new CanBuildFrom[AtomicArray[_], T, AtomicArray[T]] {
-      def apply(from: AtomicArray[_]): mutable.Builder[T, AtomicArray[T]] = {
-        val b = AtomicArrayBuilder of m
-        b.sizeHint(from.length)
-        b
-      }
-      def apply(): mutable.Builder[T, AtomicArray[T]] = AtomicArrayBuilder of m
-    }
-  }
-
+  implicit def canBuildFrom[T](implicit m: ClassTag[T]): CompatBuildFrom[AtomicArray[_], T, AtomicArray[T]] =
+    canBuildFromImpl
 
   final class ofBoolean(elems: AtomicIntegerArray) extends AtomicArray[Boolean] {
     def this(size: Int) = this(new AtomicIntegerArray(size))
@@ -244,7 +232,7 @@ object AtomicArray {
       elems.compareAndSet(index, encode(expected), encode(elem))
     override def newBuilder = new AtomicArrayBuilder.ofDouble
   }
-  
+
   final class ofUnit(val length: Int) extends AtomicArray[Unit] {
     private val dummy = new AtomicReference[Unit](())
 
@@ -253,7 +241,7 @@ object AtomicArray {
         throw new IndexOutOfBoundsException
       dummy
     }
-    
+
     def apply(index: Int): Unit = ref(index).get
     def update(index: Int, elem: Unit): Unit = ref(index).set(elem)
     def swap(index: Int, elem: Unit): Unit = ref(index).getAndSet(elem)

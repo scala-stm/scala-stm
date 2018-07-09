@@ -2,12 +2,14 @@
 
 package scala.concurrent.stm.skel
 
+import scala.concurrent.stm.compat.AtomicArrayBuilderTemplate
+
 import java.util.concurrent.atomic.{AtomicIntegerArray, AtomicLongArray, AtomicReferenceArray}
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-trait AtomicArrayBuilder[A] extends mutable.Builder[A, AtomicArray[A]]
+trait AtomicArrayBuilder[A] extends AtomicArrayBuilderTemplate[A]
 
 object AtomicArrayBuilder {
   def of[T](m: ClassTag[T]): mutable.Builder[T, AtomicArray[T]] = {
@@ -77,7 +79,7 @@ object AtomicArrayBuilder {
 
 
   class ofBoolean extends IntBacked[Boolean] {
-    def +=(elem: Boolean): this.type = {
+    def addOne(elem: Boolean): this.type = {
       ensureSpace()
       elems(size) = if (elem) 1 else 0
       size += 1
@@ -91,7 +93,7 @@ object AtomicArrayBuilder {
   }
 
   class ofByte extends IntBacked[Byte] {
-    def +=(elem: Byte): this.type = {
+    def addOne(elem: Byte): this.type = {
       ensureSpace()
       elems(size) = elem
       size += 1
@@ -105,7 +107,7 @@ object AtomicArrayBuilder {
   }
 
   class ofShort extends IntBacked[Short] {
-    def +=(elem: Short): this.type = {
+    def addOne(elem: Short): this.type = {
       ensureSpace()
       elems(size) = elem
       size += 1
@@ -119,7 +121,7 @@ object AtomicArrayBuilder {
   }
 
   class ofChar extends IntBacked[Char] {
-    def +=(elem: Char): this.type = {
+    def addOne(elem: Char): this.type = {
       ensureSpace()
       elems(size) = elem
       size += 1
@@ -133,7 +135,7 @@ object AtomicArrayBuilder {
   }
 
   class ofInt extends IntBacked[Int] {
-    def +=(elem: Int): this.type = {
+    def addOne(elem: Int): this.type = {
       ensureSpace()
       elems(size) = elem
       size += 1
@@ -147,7 +149,7 @@ object AtomicArrayBuilder {
   }
 
   class ofFloat extends IntBacked[Float] {
-    def +=(elem: Float): this.type = {
+    def addOne(elem: Float): this.type = {
       ensureSpace()
       elems(size) = java.lang.Float.floatToRawIntBits(elem)
       size += 1
@@ -161,7 +163,7 @@ object AtomicArrayBuilder {
   }
 
   class ofLong extends LongBacked[Long] {
-    def +=(elem: Long): this.type = {
+    def addOne(elem: Long): this.type = {
       ensureSpace()
       elems(size) = elem
       size += 1
@@ -175,7 +177,7 @@ object AtomicArrayBuilder {
   }
 
   class ofDouble extends LongBacked[Double] {
-    def +=(elem: Double): this.type = {
+    def addOne(elem: Double): this.type = {
       ensureSpace()
       elems(size) = java.lang.Double.doubleToRawLongBits(elem)
       size += 1
@@ -192,7 +194,7 @@ object AtomicArrayBuilder {
     protected var size = 0
 
     def clear(): Unit = { size = 0 }
-    def +=(elem: Unit): this.type = { size += 1; this }
+    def addOne(elem: Unit): this.type = { size += 1; this }
     def result(): AtomicArray[Unit] = new AtomicArray.ofUnit(size)
   }
 
@@ -220,7 +222,7 @@ object AtomicArrayBuilder {
     def clear(): Unit =
       size = 0
 
-    def +=(elem: T): this.type = {
+    def addOne(elem: T): this.type = {
       ensureSpace()
       elems(size) = elem
       size += 1

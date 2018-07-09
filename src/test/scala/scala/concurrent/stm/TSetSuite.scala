@@ -2,6 +2,8 @@
 
 package scala.concurrent.stm
 
+import scala.concurrent.stm.compat._
+
 import org.scalatest.FunSuite
 import scala.util.Random
 import scala.collection.mutable
@@ -293,12 +295,12 @@ class TSetSuite extends FunSuite {
         assert(b === s)
       } else if (pct < 208) {
         val cutoff = nextKey()
-        base.retain { v => v < cutoff }
-        mut.retain { v => v < cutoff }
+        base.filterInPlace { v => v < cutoff }
+        mut.filterInPlace { v => v < cutoff }
       } else if (pct < 211) {
         val cutoff = nextKey()
-        base.retain { v => v < cutoff }
-        atomic { implicit txn => mut.tset.retain { v => v < cutoff } }
+        base.filterInPlace { v => v < cutoff }
+        atomic { implicit txn => mut.tset.filterInPlace { v => v < cutoff } }
       } else if (pct < 214) {
         val b2 = base map { v => v.substring(3).toInt }
         val m2 = mut map { v => v.substring(3).toInt }

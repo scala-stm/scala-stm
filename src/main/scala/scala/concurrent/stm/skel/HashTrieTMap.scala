@@ -3,18 +3,20 @@
 package scala.concurrent.stm
 package skel
 
+import scala.concurrent.stm.compat._
+
 import scala.collection.mutable
 
 private[stm] object HashTrieTMap {
-  
+
   def empty[A, B]: TMap[A, B] = new HashTrieTMap(Ref(TxnHashTrie.emptyMapNode[A, B]).single)
 
-  def newBuilder[A, B]: mutable.Builder[(A, B), TMap[A, B]] = new mutable.Builder[(A, B), TMap[A, B]] {
+  def newBuilder[A, B]: HashTrieTMapBuilder[A, B] = new HashTrieTMapBuilder[A, B] {
     var root: TxnHashTrie.BuildingNode[A, B] = TxnHashTrie.emptyMapBuildingNode[A, B]
 
     def clear(): Unit = { root = TxnHashTrie.emptyMapBuildingNode[A, B] }
 
-    def += (kv: (A, B)): this.type = { root = TxnHashTrie.buildingPut(root, kv._1, kv._2) ; this }
+    def addOne(elem: (A, B)): this.type = { root = TxnHashTrie.buildingPut(root, elem._1, elem._2) ; this }
 
     def result(): TMap[A, B] = {
       val r = root
@@ -24,8 +26,10 @@ private[stm] object HashTrieTMap {
   }
 }
 
-private[skel] class HashTrieTMap[A, B] private (root0: Ref.View[TxnHashTrie.Node[A, B]]
-                                                 ) extends TxnHashTrie[A, B](root0) with TMapViaClone[A, B] {
+private[skel] class HashTrieTMap[A, B] private (root0: Ref.View[TxnHashTrie.Node[A, B]])
+  extends TxnHashTrie[A, B](root0)
+  with TMapViaClone[A, B]
+  with HashTrieTMapTemplate[A, B] {
 
   //// construction
 
@@ -51,10 +55,10 @@ private[skel] class HashTrieTMap[A, B] private (root0: Ref.View[TxnHashTrie.Node
 
   override def put(key: A, value: B): Option[B] = singlePut(key, value)
   override def update(key: A, value: B): Unit = singlePut(key, value)
-  override def += (kv: (A, B)): this.type = { singlePut(kv._1, kv._2) ; this }
+  def addOne(elem: (A, B)): this.type = { singlePut(elem._1, elem._2) ; this }
 
   override def remove(key: A): Option[B] = singleRemove(key)
-  override def -= (key: A): this.type = { singleRemove(key) ; this }
+  override def subtractOne(key: A): this.type = { singleRemove(key) ; this }
 
   //// optimized TMap versions
 
@@ -68,6 +72,6 @@ private[skel] class HashTrieTMap[A, B] private (root0: Ref.View[TxnHashTrie.Node
   def put(key: A, value: B)(implicit txn: InTxn): Option[B] = txnPut(key, value)
   def remove(key: A)(implicit txn: InTxn): Option[B] = txnRemove(key)
 
-  def transform(f: (A, B) => B)(implicit txn: InTxn): this.type = { single transform f ; this }
-  def retain(p: (A, B) => Boolean)(implicit txn: InTxn): this.type = { single retain p ; this }
+  def transform(f: (A, B) => B)(implicit txn: InTxn): this.type = { single mapValuesInPlace f ; this }
+  def filterInPlace(p: ((A, B)) => Boolean)(implicit txn: InTxn): this.type = { single filterInPlace p ; this }
 }

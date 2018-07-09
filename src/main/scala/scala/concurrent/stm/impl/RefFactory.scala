@@ -6,7 +6,9 @@ package impl
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-/** `RefFactory` is responsible for creating concrete `Ref` instances. */ 
+import scala.concurrent.stm.compat._
+
+/** `RefFactory` is responsible for creating concrete `Ref` instances. */
 trait RefFactory {
   def newRef(v0: Boolean): Ref[Boolean]
   def newRef(v0: Byte):    Ref[Byte]
@@ -20,7 +22,7 @@ trait RefFactory {
 
   /** `T` will not be one of the primitive types (for which a `newRef`
    *  specialization exists).
-   */ 
+   */
   def newRef[A : ClassTag](v0: A): Ref[A]
 
   def newTxnLocal[A](init: => A,
@@ -33,7 +35,7 @@ trait RefFactory {
                      afterCompletion: Txn.Status => Unit): TxnLocal[A]
 
   def newTArray[A : ClassTag](length: Int): TArray[A]
-  def newTArray[A : ClassTag](xs: TraversableOnce[A]): TArray[A]
+  def newTArray[A : ClassTag](xs: IterableOnce[A]): TArray[A]
 
   def newTMap[A, B]: TMap[A, B]
   def newTMapBuilder[A, B]: mutable.Builder[(A, B), TMap[A, B]]

@@ -3,13 +3,15 @@
 package scala.concurrent.stm
 package ccstm
 
+import scala.concurrent.stm.compat._
+
 import java.util.concurrent.atomic.AtomicLongFieldUpdater
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
 private[ccstm] object CCSTMRefs {
-  
+
   trait Factory extends impl.RefFactory {
     def newRef(v0: Boolean): Ref[Boolean] = new BooleanRef(v0)
     def newRef(v0: Byte): Ref[Byte] = new ByteRef(v0)
@@ -33,7 +35,7 @@ private[ccstm] object CCSTMRefs {
         init, initialValue, beforeCommit, whilePreparing, whileCommitting, afterCommit, afterRollback, afterCompletion)
 
     def newTArray[A: ClassTag](length: Int): TArray[A] = new TArrayImpl[A](length)
-    def newTArray[A: ClassTag](xs: TraversableOnce[A]): TArray[A] = new TArrayImpl[A](xs)
+    def newTArray[A: ClassTag](xs: IterableOnce[A]): TArray[A] = new TArrayImpl[A](xs)
 
     def newTMap[A, B]: TMap[A, B] = skel.HashTrieTMap.empty[A, B]
     def newTMapBuilder[A, B]: mutable.Builder[(A, B), TMap[A, B]] = skel.HashTrieTMap.newBuilder[A, B]
@@ -57,7 +59,7 @@ private[ccstm] object CCSTMRefs {
   // Every call to AtomicLongFieldUpdater checks the receiver's type with
   // receiver.getClass().isInstanceOf(declaringClass).  This means that there
   // is a substantial performance benefit to putting the meta field in the
-  // concrete leaf classes instead of the abstract base class. 
+  // concrete leaf classes instead of the abstract base class.
 
   private val booleanUpdater  = new BooleanRef(false).newMetaUpdater
   private val byteUpdater     = new ByteRef(0: Byte).newMetaUpdater

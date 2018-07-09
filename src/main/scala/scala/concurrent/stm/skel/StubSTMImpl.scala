@@ -3,6 +3,8 @@
 package scala.concurrent.stm
 package skel
 
+import scala.concurrent.stm.compat._
+
 import java.util.concurrent.TimeUnit
 
 import scala.collection.mutable
@@ -33,7 +35,7 @@ class StubSTMImpl extends impl.STMImpl {
                      afterCompletion: Txn.Status => Unit): TxnLocal[A] = throw new AbstractMethodError
 
   def newTArray[A : ClassTag](length: Int): TArray[A] = throw new AbstractMethodError
-  def newTArray[A : ClassTag](xs: TraversableOnce[A]): TArray[A] = throw new AbstractMethodError
+  def newTArray[A : ClassTag](xs: IterableOnce[A]): TArray[A] = throw new AbstractMethodError
 
   def newTMap[A, B]: TMap[A, B] = throw new AbstractMethodError
   def newTMapBuilder[A, B]: mutable.Builder[(A, B), TMap[A, B]] = throw new AbstractMethodError
