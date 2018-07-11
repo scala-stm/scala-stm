@@ -3,18 +3,20 @@
 package scala.concurrent.stm
 package skel
 
+import scala.concurrent.stm.compat._
+
 import scala.collection.{immutable, mutable}
 
 private[stm] object TMapViaClone {
-  class FrozenMutableMap[A, B](self: mutable.Map[A, B]) extends immutable.Map[A, B] {
+  class FrozenMutableMap[A, B](self: mutable.Map[A, B]) extends FrozenMutableMapTemplate[A, B] {
     override def isEmpty: Boolean = self.isEmpty
     override def size: Int = self.size
     def get(key: A): Option[B] = self.get(key)
     def iterator: Iterator[(A, B)] = self.iterator
     override def foreach[U](f: ((A, B)) => U): Unit = { self foreach f }
-    def + [B1 >: B](kv: (A, B1)): immutable.Map[A, B1] =
-        new FrozenMutableMap(self.clone().asInstanceOf[mutable.Map[A, B1]] += kv)
-    def - (k: A): immutable.Map[A, B] = new FrozenMutableMap(self.clone() -= k)
+    override def updated[B1 >: B](key: A, value: B1): immutable.Map[A, B1] =
+        new FrozenMutableMap(self.clone().asInstanceOf[mutable.Map[A, B1]] += ((key, value)))
+    def remove(key: A): immutable.Map[A, B] = new FrozenMutableMap(self.clone() -= key)
   }
 }
 
@@ -24,7 +26,8 @@ private[stm] object TMapViaClone {
  *
  *  @author Nathan Bronson
  */
-private[stm] trait TMapViaClone[A, B] extends TMap.View[A, B] with TMap[A, B] {
+private[stm] trait TMapViaClone[A, B] extends TMap.View[A, B] with TMap[A, B] with TMapViaCloneTemplate[A, B] {
+
   import TMapViaClone._
 
   // Implementations may be able to do better.
@@ -44,12 +47,9 @@ private[stm] trait TMapViaClone[A, B] extends TMap.View[A, B] with TMap[A, B] {
    */
   def dbgValue: Any = atomic.unrecorded({ _ => toArray }, { x => x })
 
-  //////////// builder functionality (from mutable.MapLike via TMap.View)
-
-  override protected[this] def newBuilder: TMap.View[A, B] = empty
+  //////////// builder functionality
 
   override def result(): TMap.View[A, B] = this
-
 
   //////////// construction of new TMaps
 
@@ -68,15 +68,17 @@ private[stm] trait TMapViaClone[A, B] extends TMap.View[A, B] with TMap[A, B] {
     }
   }
 
-  override def transform(f: (A, B) => B): this.type = {
-    atomic { implicit txn =>
-      for (kv <- tmap)
-        tmap.update(kv._1, f(kv._1, kv._2))
-    }
-    this
-  }
+  // wait for 2.13.0-M5, https://github.com/scala/bug/issues/10996
+  // override
+  // override def transform(f: (A, B) => B): this.type = {
+  //   atomic { implicit txn =>
+  //     for (kv <- tmap)
+  //       tmap.update(kv._1, f(kv._1, kv._2))
+  //   }
+  //   this
+  // }
 
-  override def retain(p: (A, B) => Boolean): this.type = {
+  override def filterInPlace(p: ((A, B)) => Boolean): this.type = {
     atomic { implicit txn =>
       for (kv <- tmap)
         if (!p(kv._1, kv._2))

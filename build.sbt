@@ -1,10 +1,10 @@
 
 name               := "scala-stm"
 organization       := "org.scala-stm"
-version            := "0.8-SNAPSHOT"
+version            := "0.9.0+2.13.0-M4"
 def mimaVersion     = "0.8"
 scalaVersion       := "2.12.4"
-crossScalaVersions := Seq("2.11.12", "2.12.4", "2.13.0-M3")
+crossScalaVersions := Seq("2.11.12", "2.12.4", "2.13.0-M4")
 scalacOptions     ++= Seq("-deprecation", "-feature")
 
 javacOptions in (Compile, compile) ++= {
@@ -13,11 +13,19 @@ javacOptions in (Compile, compile) ++= {
 }
 
 libraryDependencies += {
-  val v = if (scalaVersion.value == "2.13.0-M3") "3.0.5-M1" else "3.0.5"
-  "org.scalatest" %% "scalatest" % v % "test"
+  val v = if (scalaVersion.value == "2.13.0-M4") "3.0.6-SNAP1" else "3.0.5"
+  "org.scalatest" %% "scalatest" % v % Test
 }
 
-libraryDependencies += ("junit" % "junit" % "4.12" % "test")
+libraryDependencies += ("junit" % "junit" % "4.12" % Test)
+
+unmanagedSourceDirectories in Compile += {
+  val sourceDir = (sourceDirectory in Compile).value
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, n)) if n >= 13 => sourceDir / "scala-2.13+"
+    case _                       => sourceDir / "scala-2.13-"
+  }
+}
 
 mimaPreviousArtifacts := Set(organization.value %% name.value % mimaVersion)
 

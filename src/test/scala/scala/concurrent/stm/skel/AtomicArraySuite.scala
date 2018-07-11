@@ -5,6 +5,8 @@ package skel
 
 import org.scalatest.FunSuite
 
+import scala.concurrent.stm.compat._
+
 import scala.reflect.ClassTag
 
 class AtomicArraySuite extends FunSuite {
@@ -53,7 +55,7 @@ class AtomicArraySuite extends FunSuite {
     runIsolatedTest[Any]((10 until 20) map { i => i : Any })
   }
 
-  def runIsolatedTest[A](values: Seq[A])(implicit am: ClassTag[A]): Unit = {
+  def runIsolatedTest[A](values: collection.Seq[A])(implicit am: ClassTag[A]): Unit = {
     val singleton = AtomicArray[A](1)
     if (am != implicitly[ClassTag[Unit]])
       assert(singleton(0) === am.newArray(1)(0))

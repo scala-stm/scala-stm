@@ -3,17 +3,19 @@
 package scala.concurrent.stm
 package skel
 
+import scala.concurrent.stm.compat._
+
 import scala.collection.{immutable, mutable}
 
 private[stm] object TSetViaClone {
-  class FrozenMutableSet[A](self: mutable.Set[A]) extends immutable.Set[A] {
+  class FrozenMutableSet[A](self: mutable.Set[A]) extends immutable.Set[A] with FrozenMutableSetTemplate[A] {
     override def isEmpty: Boolean = self.isEmpty
     override def size: Int = self.size
     def contains(key: A): Boolean = self.contains(key)
     def iterator: Iterator[(A)] = self.iterator
     override def foreach[U](f: A => U): Unit = { self foreach f }
-    def + (x: A): immutable.Set[A] = new FrozenMutableSet(self.clone() += x)
-    def - (x: A): immutable.Set[A] = new FrozenMutableSet(self.clone() -= x)
+    override def incl(elem: A): immutable.Set[A] = new FrozenMutableSet(self.clone() += elem)
+    override def excl(elem: A): immutable.Set[A] = new FrozenMutableSet(self.clone() -= elem)
   }
 }
 
@@ -23,7 +25,8 @@ private[stm] object TSetViaClone {
  *
  *  @author Nathan Bronson
  */
-private[stm] trait TSetViaClone[A] extends TSet.View[A] with TSet[A] {
+private[stm] trait TSetViaClone[A] extends TSet.View[A] with TSet[A] with TSetViaCloneTemplate[A] {
+
   import TSetViaClone._
 
   // Implementations may be able to do better.
@@ -41,12 +44,9 @@ private[stm] trait TSetViaClone[A] extends TSet.View[A] with TSet[A] {
    */
   def dbgValue: Any = atomic.unrecorded({ _ => toArray[Any] }, { x => x })
 
-  //////////// builder functionality (from mutable.SetLike via TSet.View)
-
-  override protected[this] def newBuilder: TSet.View[A] = empty
+  //////////// builder functionality
 
   override def result(): TSet.View[A] = this
-
 
   //////////// construction of new TSets
 
@@ -57,11 +57,12 @@ private[stm] trait TSetViaClone[A] extends TSet.View[A] with TSet[A] {
 
   //////////// atomic compound ops
 
-  override def retain(p: A => Boolean): Unit = {
+  override def filterInPlace(p: A => Boolean): this.type = {
     atomic { implicit txn =>
       for (x <- tset)
         if (!p(x))
           tset -= x
     }
+    this
   }
 }
