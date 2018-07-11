@@ -22,8 +22,6 @@ object TMap {
       def addOne(elem: (A, B)): this.type = { underlying += elem ; this }
       def result(): View[A, B] = underlying.result().single
     }
-
-    override def apply[A, B](kvs: (A, B)*): TMap.View[A, B] = (TMap.newBuilder[A, B] ++= kvs).result().single
   }
 
   /** A `Map` that provides atomic execution of all of its methods. */
@@ -46,18 +44,25 @@ object TMap {
     override def className: String = "TMap"
   }
 
+  /** Constructs and returns a new `TMap` that will contain the key/value pairs
+   *  from `kvs`.
+   */
+  def apply[A, B](kvs: (A, B)*): TMap[A, B] = from(kvs, kvs.size)
+
+  private[stm] def from[A, B](it: IterableOnce[(A, B)], sizeHint: Int): TMap[A, B] = {
+    val b = TMap.newBuilder[A, B]
+    if (sizeHint >= 0)
+      b.sizeHint(sizeHint)
+    b ++= it
+    b.result()
+  }
 
   /** Constructs and returns a new empty `TMap`. */
   def empty[A, B]: TMap[A, B] = impl.STMImpl.instance.newTMap[A, B]
 
   /** Returns a builder of `TMap`. */
-  def newBuilder[A, B]: mutable.Builder[(A, B), TMap[A, B]] = impl.STMImpl.instance.newTMapBuilder[A, B]
-
-  /** Constructs and returns a new `TMap` that will contain the key/value pairs
-   *  from `kvs`.
-   */
-  def apply[A, B](kvs: (A, B)*): TMap[A, B] = (newBuilder[A, B] ++= kvs).result()
-
+  def newBuilder[A, B]: mutable.Builder[(A, B), TMap[A, B]] =
+    impl.STMImpl.instance.newTMapBuilder[A, B]
 
   /** Allows a `TMap` in a transactional context to be used as a `Map`. */
   implicit def asMap[A, B](m: TMap[A, B])(implicit txn: InTxn): View[A, B] = m.single

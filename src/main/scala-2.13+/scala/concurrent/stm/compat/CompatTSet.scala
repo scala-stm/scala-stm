@@ -6,10 +6,8 @@ import scala.collection.{mutable, immutable}
 import scala.language.higherKinds
 
 private[stm] trait TSetViewCompanion extends IterableFactory[TSet.View] {
-  def from[A](it: IterableOnce[A]): TSet.View[A] =
-    (TSet.newBuilder[A] ++= it).result().single
-
   def canBuildFromImpl[A]: CompatBuildFrom[TSet.View[_], A, TSet.View[A]] = ()
+  def from[A](it: IterableOnce[A]): TSet.View[A] = TSet.from(it, it.knownSize).single
 }
 
 private[stm] trait TSetViewTemplate[A] extends mutable.SetOps[A, TSet.View, TSet.View[A]] {

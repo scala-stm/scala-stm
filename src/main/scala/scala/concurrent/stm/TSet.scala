@@ -22,8 +22,6 @@ object TSet {
       def addOne(elem: A): this.type = { underlying += elem ; this }
       def result(): View[A] = underlying.result().single
     }
-
-    override def apply[A](xs: A*): TSet.View[A] = (TSet.newBuilder[A] ++= xs).result().single
   }
 
   /** A `Set` that provides atomic execution of all of its methods. */
@@ -44,18 +42,25 @@ object TSet {
     override def className: String = "TSet"
   }
 
+  /** Constructs and returns a new `TSet` that will contain the elements from
+   *  `xs`.
+   */
+  def apply[A](xs: A*): TSet[A] = from(xs, xs.size)
+
+  private[stm] def from[A](it: IterableOnce[A], sizeHint: Int): TSet[A] = {
+    val b = TSet.newBuilder[A]
+    if (sizeHint >= 0)
+      b.sizeHint(sizeHint)
+    b ++= it
+    b.result()
+  }
+
 
   /** Constructs and returns a new empty `TSet`. */
   def empty[A]: TSet[A] = impl.STMImpl.instance.newTSet[A]
 
   /** Returns a builder of `TSet`. */
   def newBuilder[A]: mutable.Builder[A, TSet[A]] = impl.STMImpl.instance.newTSetBuilder[A]
-
-  /** Constructs and returns a new `TSet` that will contain the elements from
-   *  `xs`.
-   */
-  def apply[A](xs: A*): TSet[A] = (newBuilder[A] ++= xs).result()
-
 
   /** Allows a `TSet` in a transactional context to be used as a `Set`. */
   implicit def asSet[A](s: TSet[A])(implicit txn: InTxn): View[A] = s.single

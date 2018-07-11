@@ -6,15 +6,8 @@ import scala.collection.{mutable, immutable}
 import scala.language.higherKinds
 
 private[stm] trait TMapViewCompanion extends MapFactory[TMap.View] {
-  def from[A, B](it: IterableOnce[(A, B)]): TMap.View[A, B] = {
-    val b = newBuilder[A, B]
-    if (it.knownSize >= 0)
-      b.sizeHint(it.knownSize)
-
-    b ++= it
-    b.result()
-  }
   def canBuildFromImpl[A, B]: CompatBuildFrom[TMap.View[_, _], (A, B), TMap.View[A, B]] = ()
+  def from[A, B](it: IterableOnce[(A, B)]): TMap.View[A, B] = TMap.from(it, it.knownSize).single
 }
 
 private[stm] trait TMapViewTemplate[A, B] extends mutable.MapOps[A, B, TMap.View, TMap.View[A, B]] {

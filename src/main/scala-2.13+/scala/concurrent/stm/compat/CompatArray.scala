@@ -32,7 +32,7 @@ private[stm] trait AtomicArrayCompanion extends StrictOptimizedClassTagSeqFactor
     AtomicArray[T](it)
 
   def newBuilder[T](implicit m: ClassTag[T]): mutable.Builder[T, AtomicArray[T]] =
-    AtomicArrayBuilder of m
+    AtomicArrayBuilder.of(m)
 
   private[stm] def canBuildFromImpl[T](implicit m: ClassTag[T]): CompatBuildFrom[AtomicArray[_], T, AtomicArray[T]] = ()
 }

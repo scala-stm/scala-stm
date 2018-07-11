@@ -6,7 +6,7 @@ import scala.collection.{mutable, immutable}
 import scala.language.higherKinds
 
 private[stm] trait TMapViewCompanion extends generic.MutableMapFactory[TMap.View] {
-
+  override def apply[A, B](kvs: (A, B)*): TMap.View[A, B] = TMap(kvs: _*).single
   def canBuildFromImpl[A, B]: CompatBuildFrom[TMap.View[_, _], (A, B), TMap.View[A, B]] =
     new MapCanBuildFrom[A, B]
 }

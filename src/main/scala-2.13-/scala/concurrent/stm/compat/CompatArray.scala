@@ -24,7 +24,7 @@ private[stm] trait AtomicArrayCompanion {
         b
       }
       def apply(): mutable.Builder[T, AtomicArray[T]] = {
-        AtomicArrayBuilder of m
+        AtomicArrayBuilder.of(m)
       }
     }
   }
