@@ -2,6 +2,8 @@
 
 package scala.concurrent.stm
 
+import scala.concurrent.stm.compat._
+
 import org.scalatest.FunSuite
 import scala.util.Random
 import scala.collection.mutable
@@ -183,8 +185,8 @@ class TMapSuite extends FunSuite {
       } else if (pct < 91) {
         val k2 = nextKey()
         val k3 = nextKey()
-        assert(base eq (base -= (k, k2, k3)))
-        assert(mut eq (mut -= (k, k2, k3)))
+        assert(base eq (base --= Array(k, k2, k3)))
+        assert(mut eq (mut --= Array(k, k2, k3)))
       } else if (pct < 93) {
         val k2 = nextKey()
         val k3 = nextKey()
@@ -241,7 +243,7 @@ class TMapSuite extends FunSuite {
         val kv2 = nextKey -> nextValue
         val kv3 = nextKey -> nextValue
         assert(base eq (base += (k -> v, kv2, kv3)))
-        assert(mut.tmap eq atomic { implicit t => mut.tmap += (k -> v, kv2, kv3) })
+        assert(mut.tmap eq atomic { implicit t => mut.tmap ++= List(k -> v, kv2,  kv3) })
       } else if (pct < 182) {
         val kv2 = nextKey -> nextValue
         val kv3 = nextKey -> nextValue
@@ -255,8 +257,8 @@ class TMapSuite extends FunSuite {
       } else if (pct < 191) {
         val k2 = nextKey()
         val k3 = nextKey()
-        assert(base eq (base -= (k, k2, k3)))
-        assert(mut.tmap eq atomic { implicit t => mut.tmap -= (k, k2, k3) })
+        assert(base eq (base --= Array(k, k2, k3)))
+        assert(mut.tmap eq atomic { implicit t => mut.tmap --= Array(k, k2, k3) })
       } else if (pct < 193) {
         val k2 = nextKey()
         val k3 = nextKey()
@@ -304,12 +306,12 @@ class TMapSuite extends FunSuite {
         assert(b === s)
       } else if (pct < 208) {
         val cutoff = rand.nextInt()
-        assert(base eq base.retain { (_, v) => v < cutoff })
-        assert(mut  eq mut .retain { (_, v) => v < cutoff })
+        assert(base eq base.filterInPlace { case (_, v) => v < cutoff })
+        assert(mut  eq mut .filterInPlace { case (_, v) => v < cutoff })
       } else if (pct < 211) {
         val cutoff = rand.nextInt()
-        assert(base eq base.retain { (_, v) => v < cutoff })
-        assert(mut.tmap eq atomic { implicit txn => mut.tmap.retain { (_, v) => v < cutoff } })
+        assert(base eq base.filterInPlace { case (_, v) => v < cutoff })
+        assert(mut.tmap eq atomic { implicit txn => mut.tmap.filterInPlace { case (_, v) => v < cutoff } })
       } else if (pct < 214) {
         val k = nextKey()
         val v = nextValue()
@@ -325,11 +327,11 @@ class TMapSuite extends FunSuite {
         assert(base.getOrElseUpdate(k, { bf = true ; v }) === atomic { implicit txn => mut.getOrElseUpdate(k, { mf = true ; v }) })
         assert(bf === mf)
       } else if (pct < 220) {
-        assert(base eq base.transform { (_, v) => v + 1 })
-        assert(mut  eq mut .transform { (_, v) => v + 1 })
+        assert(base eq base.mapValuesInPlace { (_, v) => v + 1 })
+        assert(mut  eq mut .mapValuesInPlace { (_, v) => v + 1 })
       } else if (pct < 223) {
-        assert(base eq base.transform { (_, v) => v + 1 })
-        assert(mut.tmap eq atomic { implicit txn => mut.tmap.transform { (_, v) => v + 1 } })
+        assert(base eq base.mapValuesInPlace { (_, v) => v + 1 })
+        assert(mut.tmap eq atomic { implicit txn => mut.tmap.mapValuesInPlace { case (_, v) => v + 1 } })
       } else if (pct < 225) {
         val b2 = base map { kv => kv._1 -> kv._2 * 1L }
         val m2 = mut  map { kv => kv._1 -> kv._2 * 1L }
@@ -365,7 +367,7 @@ class TMapSuite extends FunSuite {
     assert(!m.single.iterator.hasNext)
     for (_ <- m.single) { assert(false) }
   }
-  
+
   test("view clear") {
     val m = TMap(1 -> "one", 2 -> "two")
     m.single.clear()

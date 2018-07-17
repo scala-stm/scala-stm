@@ -6,6 +6,8 @@ import org.scalatest.FunSuite
 import scala.util.Random
 import scala.collection.mutable
 
+import scala.concurrent.stm.compat._
+
 class TSetSuite extends FunSuite {
 
   test("number equality trickiness") {
@@ -175,8 +177,8 @@ class TSetSuite extends FunSuite {
       } else if (pct < 91) {
         val k2 = nextKey()
         val k3 = nextKey()
-        assert(base eq (base -= (k, k2, k3)))
-        assert(mut eq (mut -= (k, k2, k3)))
+        assert(base eq (base --= Array(k, k2, k3)))
+        assert(mut eq (mut --= Array(k, k2, k3)))
       } else if (pct < 93) {
         val k2 = nextKey()
         val k3 = nextKey()
@@ -230,7 +232,7 @@ class TSetSuite extends FunSuite {
         val k2 = nextKey()
         val k3 = nextKey()
         assert(base eq (base += (k, k2, k3)))
-        assert(mut.tset eq atomic { implicit txn => mut.tset += (k, k2, k3) })
+        assert(mut.tset eq atomic { implicit txn => mut.tset ++= Array(k, k2, k3) })
       } else if (pct < 182) {
         val k2 = nextKey()
         val k3 = nextKey()
@@ -244,8 +246,8 @@ class TSetSuite extends FunSuite {
       } else if (pct < 191) {
         val k2 = nextKey()
         val k3 = nextKey()
-        assert(base eq (base -= (k, k2, k3)))
-        assert(mut.tset eq atomic { implicit txn => mut.tset -= (k, k2, k3) })
+        assert(base eq (base --= Array(k, k2, k3)))
+        assert(mut.tset eq atomic { implicit txn => mut.tset --= Array(k, k2, k3) })
       } else if (pct < 193) {
         val k2 = nextKey()
         val k3 = nextKey()
@@ -293,12 +295,12 @@ class TSetSuite extends FunSuite {
         assert(b === s)
       } else if (pct < 208) {
         val cutoff = nextKey()
-        base.retain { v => v < cutoff }
-        mut.retain { v => v < cutoff }
+        base.filterInPlace { v => v < cutoff }
+        mut.filterInPlace { v => v < cutoff }
       } else if (pct < 211) {
         val cutoff = nextKey()
-        base.retain { v => v < cutoff }
-        atomic { implicit txn => mut.tset.retain { v => v < cutoff } }
+        base.filterInPlace { v => v < cutoff }
+        atomic { implicit txn => mut.tset.filterInPlace { v => v < cutoff } }
       } else if (pct < 214) {
         val b2 = base map { v => v.substring(3).toInt }
         val m2 = mut map { v => v.substring(3).toInt }

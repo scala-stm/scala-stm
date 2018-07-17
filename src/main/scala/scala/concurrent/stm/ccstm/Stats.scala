@@ -47,7 +47,7 @@ private[ccstm] object Stats {
         value
     }
 
-    def contents: Seq[Long] = {
+    def contents: collection.Seq[Long] = {
       val snap = _buckets map { _.apply() }
       snap.take(1 + snap.lastIndexWhere { _ != 0L })
     }
@@ -90,7 +90,7 @@ private[ccstm] object Stats {
     val rollbackBargeSet  = new ExponentialHisto
     val rollbackWriteSet  = new ExponentialHisto
 
-    def contents: Seq[String] = {
+    def contents: collection.Seq[String] = {
       val buf = new ArrayBuffer[String]
       for (f <- getClass.getDeclaredFields) {
         val name = f.getName
@@ -105,7 +105,7 @@ private[ccstm] object Stats {
           case h: Histo => buf += "%17s: %s".format(name, h)
         }
       }
-      buf.result
+      buf
     }
 
     def mkString(prefix: String): String = {
