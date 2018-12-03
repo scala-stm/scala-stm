@@ -1,6 +1,16 @@
-ScalaSTM - 0.8-SNAPSHOT RELEASE NOTES
+ScalaSTM - 0.9 RELEASE NOTES
 
-Changes between 0.7 and 0.8-SNAPSHOT:
+Changes between 0.8 and 0.9:
+
+* add Scala 2.13 support
+  (includes using new Collections API,
+  changing all occurrences of deprecated ClassManifest for ClassTag)
+
+* disable "multi-barrier deadlock cycle" test (uses CommitBarrier)
+
+* fix initialisation bug in RetrySetBuilder (InitialCap was zero)
+
+Changes between 0.7 and 0.8:
 
 * correctness fix for TArray[Long] and AtomicArray.ofLong.
 

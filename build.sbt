@@ -2,9 +2,9 @@
 name               := "scala-stm"
 organization       := "org.scala-stm"
 version            := "0.9"
-def mimaVersion     = "0.8"
-scalaVersion       := "2.12.6"
-crossScalaVersions := Seq("2.11.12", "2.12.6", "2.13.0-M5")
+def mimaVersion     = "0.9"
+scalaVersion       := "2.12.7"
+crossScalaVersions := Seq("2.11.12", "2.12.7", "2.13.0-M5")
 scalacOptions     ++= Seq("-deprecation", "-feature")
 
 javacOptions in (Compile, compile) ++= {
@@ -61,11 +61,12 @@ developers := List(
 publishMavenStyle := true
 
 publishTo := {
-    val base = "https://oss.sonatype.org/"
-    if (version.value.trim.endsWith("SNAPSHOT"))
-      Some("snapshots" at base + "content/repositories/snapshots/")
+    val base = "https://oss.sonatype.org"
+    Some(if (isSnapshot.value)
+      "snapshots" at s"$base/content/repositories/snapshots/"
     else
-      Some("releases" at base + "service/local/staging/deploy/maven2/")
+      "releases"  at s"$base/service/local/staging/deploy/maven2/"
+    )
   }
 
 // exclude scalatest from the Maven POM
