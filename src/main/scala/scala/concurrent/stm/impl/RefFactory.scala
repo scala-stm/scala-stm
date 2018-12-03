@@ -3,6 +3,8 @@
 package scala.concurrent.stm
 package impl
 
+import scala.concurrent.stm.compat._
+
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
@@ -33,7 +35,7 @@ trait RefFactory {
                      afterCompletion: Txn.Status => Unit): TxnLocal[A]
 
   def newTArray[A : ClassTag](length: Int): TArray[A]
-  def newTArray[A : ClassTag](xs: TraversableOnce[A]): TArray[A]
+  def newTArray[A : ClassTag](xs: IterableOnce[A]): TArray[A]
 
   def newTMap[A, B]: TMap[A, B]
   def newTMapBuilder[A, B]: mutable.Builder[(A, B), TMap[A, B]]

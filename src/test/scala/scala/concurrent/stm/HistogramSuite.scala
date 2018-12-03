@@ -44,7 +44,7 @@ class HistogramSuite extends FunSuite {
                 singlePct: Int,
                 samplesPerTxn: Int): Unit = {
 
-    val buckets: IndexedSeq[Ref[Int]] = if (useTArray) {
+    val buckets: collection.IndexedSeq[Ref[Int]] = if (useTArray) {
       TArray.ofDim[Int](bucketCount).refs
     } else {
       Array.tabulate(bucketCount)({ _ => Ref(0) })
@@ -67,7 +67,7 @@ class HistogramSuite extends FunSuite {
         }
       }
     })
-    
+
     for (worker <- 0 until workerCount) {
       val work = new Runnable {
         def run(): Unit = {

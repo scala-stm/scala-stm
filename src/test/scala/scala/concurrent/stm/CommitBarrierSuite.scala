@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 
 import org.scalatest.FunSuite
 
-import scala.concurrent.forkjoin.LinkedTransferQueue
+import java.util.concurrent.LinkedTransferQueue
 import scala.concurrent.stm.skel.SimpleRandom
 import scala.util.control.Breaks
 

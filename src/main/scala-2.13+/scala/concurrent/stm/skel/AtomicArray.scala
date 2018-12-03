@@ -5,8 +5,8 @@ package scala.concurrent.stm.skel
 import java.util.concurrent.atomic._
 
 import scala.annotation.tailrec
-import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
+import scala.collection.{mutable, ClassTagSeqFactory, StrictOptimizedClassTagSeqFactory, SeqFactory, IterableOnce}
 import scala.reflect.ClassTag
 
 
@@ -28,7 +28,7 @@ import scala.reflect.ClassTag
  *
  *  @author Nathan Bronson
  */
-abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.ArrayLike[T, AtomicArray[T]] {
+abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.IndexedSeqOps[T, AtomicArray, AtomicArray[T]] {
 
   // We choose to store Boolean-s (and other small primitives) each in their
   // own Int.  This wastes space.  Another option would be to pack values into
@@ -40,8 +40,7 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.ArrayLi
   // performed directly.  compareAndSet of bytes would have to be emulated by
   // integer-sized CAS.
 
-  override protected[this] def thisCollection: AtomicArray[T] = this
-  override protected[this] def toCollection(repr: AtomicArray[T]): AtomicArray[T] = repr
+  override val iterableFactory: SeqFactory[AtomicArray] = AtomicArray.untagged
 
   /** The length of the array */
   def length: Int
@@ -65,20 +64,32 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.ArrayLi
     if (compareAndSet(index, before, f(before))) before else getAndTransform(index)(f)
   }
 
-  override def stringPrefix = "AtomicArray"
-  
+  override def className = "AtomicArray"
+
   /** Clones this object, including the underlying Array. */
   override def clone: AtomicArray[T] = {
-    val b = newBuilder
+    val b = newSpecificBuilder
     b.sizeHint(length)
     b ++= this
     b.result()
   }
 
-  override def newBuilder: AtomicArrayBuilder[T] = throw new AbstractMethodError
+  protected def newSpecificBuilder: mutable.Builder[T, AtomicArray[T]]
+
 }
 
-object AtomicArray {
+object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
+
+  val untagged: SeqFactory[AtomicArray] = new ClassTagSeqFactory.AnySeqDelegate(this)
+
+  def empty[T](implicit m: ClassTag[T]): AtomicArray[T] =
+    AtomicArray[T](0)
+
+  def from[T](it: IterableOnce[T])(implicit m: ClassTag[T]): AtomicArray[T] =
+    AtomicArray[T](it)
+
+  def newBuilder[T](implicit m: ClassTag[T]): mutable.Builder[T, AtomicArray[T]] =
+    AtomicArrayBuilder.of(m)
 
   def apply[T](size: Int)(implicit m: ClassTag[T]): AtomicArray[T] = {
     (m.newArray(0).asInstanceOf[AnyRef] match {
@@ -107,10 +118,11 @@ object AtomicArray {
   def apply[T <: AnyRef](elems: Array[T]) =
     new ofRef(new AtomicReferenceArray(elems.asInstanceOf[Array[AnyRef]]).asInstanceOf[AtomicReferenceArray[T]])
 
-  def apply[T](elems: TraversableOnce[T])(implicit m: ClassTag[T]): AtomicArray[T] = {
-    val array: AnyRef = elems match {
+  def apply[T](elems: IterableOnce[T])(implicit m: ClassTag[T]): AtomicArray[T] = {
+    val array: Array[_] = elems match {
       case w: mutable.WrappedArray[_] => w.array // we're going to copy out regardless, no need to duplicate right now
-      case _ => elems.toArray
+      case it: Iterable[T] => it.toArray
+      case _ => elems.iterator.toArray
     }
     val result = array match {
       case x: Array[Boolean]  => apply(x)
@@ -127,19 +139,6 @@ object AtomicArray {
     result.asInstanceOf[AtomicArray[T]]
   }
 
-  
-  implicit def canBuildFrom[T](implicit m: ClassTag[T]): CanBuildFrom[AtomicArray[_], T, AtomicArray[T]] = {
-    new CanBuildFrom[AtomicArray[_], T, AtomicArray[T]] {
-      def apply(from: AtomicArray[_]): mutable.Builder[T, AtomicArray[T]] = {
-        val b = AtomicArrayBuilder of m
-        b.sizeHint(from.length)
-        b
-      }
-      def apply(): mutable.Builder[T, AtomicArray[T]] = AtomicArrayBuilder of m
-    }
-  }
-
-
   final class ofBoolean(elems: AtomicIntegerArray) extends AtomicArray[Boolean] {
     def this(size: Int) = this(new AtomicIntegerArray(size))
 
@@ -152,7 +151,7 @@ object AtomicArray {
     def swap(index: Int, elem: Boolean): Boolean = decode(elems.getAndSet(index, encode(elem)))
     def compareAndSet(index: Int, expected: Boolean, elem: Boolean): Boolean =
       elems.compareAndSet(index, encode(expected), encode(elem))
-    override def newBuilder = new AtomicArrayBuilder.ofBoolean
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofBoolean
   }
 
   final class ofByte(elems: AtomicIntegerArray) extends AtomicArray[Byte] {
@@ -164,7 +163,7 @@ object AtomicArray {
     def swap(index: Int, elem: Byte): Byte = elems.getAndSet(index, elem).toByte
     def compareAndSet(index: Int, expected: Byte, elem: Byte): Boolean =
       elems.compareAndSet(index, expected, elem)
-    override def newBuilder = new AtomicArrayBuilder.ofByte
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofByte
   }
 
   final class ofShort(elems: AtomicIntegerArray) extends AtomicArray[Short] {
@@ -176,7 +175,7 @@ object AtomicArray {
     def swap(index: Int, elem: Short): Short = elems.getAndSet(index, elem).toShort
     def compareAndSet(index: Int, expected: Short, elem: Short): Boolean =
       elems.compareAndSet(index, expected, elem)
-    override def newBuilder = new AtomicArrayBuilder.ofShort
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofShort
   }
 
   final class ofChar(elems: AtomicIntegerArray) extends AtomicArray[Char] {
@@ -188,7 +187,7 @@ object AtomicArray {
     def swap(index: Int, elem: Char): Char = elems.getAndSet(index, elem).toChar
     def compareAndSet(index: Int, expected: Char, elem: Char): Boolean =
       elems.compareAndSet(index, expected, elem)
-    override def newBuilder = new AtomicArrayBuilder.ofChar
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofChar
   }
 
   final class ofInt(elems: AtomicIntegerArray) extends AtomicArray[Int] {
@@ -200,7 +199,7 @@ object AtomicArray {
     def swap(index: Int, elem: Int): Int = elems.getAndSet(index, elem)
     def compareAndSet(index: Int, expected: Int, elem: Int): Boolean =
       elems.compareAndSet(index, expected, elem)
-    override def newBuilder = new AtomicArrayBuilder.ofInt
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofInt
   }
 
   final class ofFloat(elems: AtomicIntegerArray) extends AtomicArray[Float] {
@@ -215,7 +214,7 @@ object AtomicArray {
     def swap(index: Int, elem: Float): Float = decode(elems.getAndSet(index, encode(elem)))
     def compareAndSet(index: Int, expected: Float, elem: Float): Boolean =
       elems.compareAndSet(index, encode(expected), encode(elem))
-    override def newBuilder = new AtomicArrayBuilder.ofFloat
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofFloat
   }
 
   final class ofLong(elems: AtomicLongArray) extends AtomicArray[Long] {
@@ -227,7 +226,7 @@ object AtomicArray {
     def swap(index: Int, elem: Long): Long = elems.getAndSet(index, elem)
     def compareAndSet(index: Int, expected: Long, elem: Long): Boolean =
       elems.compareAndSet(index, expected, elem)
-    override def newBuilder = new AtomicArrayBuilder.ofLong
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofLong
   }
 
   final class ofDouble(elems: AtomicLongArray) extends AtomicArray[Double] {
@@ -242,9 +241,9 @@ object AtomicArray {
     def swap(index: Int, elem: Double): Double = decode(elems.getAndSet(index, encode(elem)))
     def compareAndSet(index: Int, expected: Double, elem: Double): Boolean =
       elems.compareAndSet(index, encode(expected), encode(elem))
-    override def newBuilder = new AtomicArrayBuilder.ofDouble
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofDouble
   }
-  
+
   final class ofUnit(val length: Int) extends AtomicArray[Unit] {
     private val dummy = new AtomicReference[Unit](())
 
@@ -253,12 +252,12 @@ object AtomicArray {
         throw new IndexOutOfBoundsException
       dummy
     }
-    
+
     def apply(index: Int): Unit = ref(index).get
     def update(index: Int, elem: Unit): Unit = ref(index).set(elem)
     def swap(index: Int, elem: Unit): Unit = ref(index).getAndSet(elem)
     def compareAndSet(index: Int, expected: Unit, elem: Unit): Boolean = ref(index).compareAndSet(expected, elem)
-    override def newBuilder = new AtomicArrayBuilder.ofUnit
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofUnit
   }
 
   final class ofRef[T <: AnyRef](elems: AtomicReferenceArray[T]) extends AtomicArray[T] {
@@ -269,6 +268,6 @@ object AtomicArray {
     def update(index: Int, elem: T): Unit = elems.set(index, elem)
     def swap(index: Int, elem: T): T = elems.getAndSet(index, elem)
     def compareAndSet(index: Int, expected: T, elem: T): Boolean = elems.compareAndSet(index, expected, elem)
-    override def newBuilder = new AtomicArrayBuilder.ofRef[T]
+    override def newSpecificBuilder = new AtomicArrayBuilder.ofRef[T]
   }
 }

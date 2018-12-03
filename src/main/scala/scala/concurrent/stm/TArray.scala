@@ -2,6 +2,8 @@
 
 package scala.concurrent.stm
 
+import scala.concurrent.stm.compat._
+
 import scala.collection.{immutable, mutable}
 import scala.reflect.ClassTag
 
@@ -35,6 +37,7 @@ object TArray {
      *  `array`.  All operations on the contained `Ref.View`s are supported.
      */
     def refViews: immutable.IndexedSeq[Ref.View[A]]
+
   }
 
   //////////////// factory methods
@@ -48,7 +51,7 @@ object TArray {
   def ofDim[A : ClassTag](length: Int): TArray[A] = impl.STMImpl.instance.newTArray[A](length)
 
   /** Returns a new `TArray[A]` containing the elements of `data`. */
-  def apply[A : ClassTag](data: TraversableOnce[A]): TArray[A] = impl.STMImpl.instance.newTArray[A](data)
+  def apply[A : ClassTag](data: IterableOnce[A]): TArray[A] = impl.STMImpl.instance.newTArray[A](data)
 }
 
 /** Bulk transactional storage, roughly equivalent to `Array[Ref[T]]` but
