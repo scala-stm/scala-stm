@@ -124,7 +124,7 @@ trait TMap[A, B] extends TxnDebuggable {
   def mapValuesInPlace(f: (A, B) => B)(implicit txn: InTxn): this.type
 
   @deprecated("Use .filterInPlace instead of .retain", "0.8")
-  @`inline` final def retain(p: (A, B) => Boolean)(implicit txn: InTxn): this.type = filterInPlace(p.tupled)
+  @`inline` final def retain(p: (A, B) => Boolean)(implicit txn: InTxn): this.type = filterInPlace(p)
 
-  def filterInPlace(p: ((A, B)) => Boolean)(implicit txn: InTxn): this.type
+  def filterInPlace(p: (A, B) => Boolean)(implicit txn: InTxn): this.type
 }

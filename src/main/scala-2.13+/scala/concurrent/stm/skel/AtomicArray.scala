@@ -74,16 +74,6 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.Indexed
     b.result()
   }
 
-  // this should not be abstract: https://github.com/scala/bug/issues/11006
-  def mapInPlace(f: T => T): this.type = {
-    var i = 0
-    while (i < length) {
-      update(i, f(apply(i)))
-      i = i + 1
-    }
-    this
-  }
-
   protected def newSpecificBuilder: mutable.Builder[T, AtomicArray[T]]
 
 }

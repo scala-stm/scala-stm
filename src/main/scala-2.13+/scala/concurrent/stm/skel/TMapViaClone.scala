@@ -35,7 +35,7 @@ private[stm] trait TMapViaClone[A, B] extends TMap.View[A, B] with TMap[A, B] {
 
   /** Something like `"TMap[size=1]((1 -> 10))"`, stopping after 1K chars */
   def dbgStr: String = atomic.unrecorded({ _ =>
-    mkStringPrefix("TMap", single.view.map { kv => kv._1 + " -> " + kv._2 })
+    mkStringPrefix("TMap", single.view.map { kv => kv._1.toString + " -> " + kv._2 })
   }, { _.toString })
 
   /** Returns an array of key/value pairs, since that is likely to be the
@@ -61,16 +61,15 @@ private[stm] trait TMapViaClone[A, B] extends TMap.View[A, B] with TMap[A, B] {
     }
   }
 
-  // wait for 2.13.0-M5, https://github.com/scala/bug/issues/10996
-  // override def transform(f: (A, B) => B): this.type = {
-  //   atomic { implicit txn =>
-  //     for (kv <- tmap)
-  //       tmap.update(kv._1, f(kv._1, kv._2))
-  //   }
-  //   this
-  // }
+   override def mapValuesInPlace(f: (A, B) => B): this.type = {
+     atomic { implicit txn =>
+       for (kv <- tmap)
+         tmap.update(kv._1, f(kv._1, kv._2))
+     }
+     this
+   }
 
-  override def filterInPlace(p: ((A, B)) => Boolean): this.type = {
+  override def filterInPlace(p: (A, B) => Boolean): this.type = {
     atomic { implicit txn =>
       for (kv <- tmap)
         if (!p(kv._1, kv._2))

@@ -187,7 +187,7 @@ class TSetSuite extends FunSuite {
       } else if (pct < 94) {
         assert(mut eq (mut --= Nil))
       } else if (pct < 95) {
-        mut = TSet(mut.toArray: _*).single
+        mut = TSet(mut.toSeq: _*).single
       } else if (pct < 96) {
         mut = TSet.empty[String].single ++= mut
       } else if (pct < 97) {
@@ -256,7 +256,7 @@ class TSetSuite extends FunSuite {
       } else if (pct < 194) {
         assert(mut.tset eq atomic { implicit txn => mut.tset --= Nil })
       } else if (pct < 195) {
-        mut = atomic { implicit txn => TSet(mut.tset.toArray: _*).single }
+        mut = atomic { implicit txn => TSet(mut.tset.toSeq: _*).single }
       } else if (pct < 196) {
         mut = atomic { implicit txn => TSet.empty[String] ++= mut.tset }.single
       } else if (pct < 197) {

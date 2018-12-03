@@ -4,7 +4,7 @@ organization       := "org.scala-stm"
 version            := "0.9"
 def mimaVersion     = "0.8"
 scalaVersion       := "2.12.6"
-crossScalaVersions := Seq("2.11.12", "2.12.6", "2.13.0-M4")
+crossScalaVersions := Seq("2.11.12", "2.12.6", "2.13.0-M5")
 scalacOptions     ++= Seq("-deprecation", "-feature")
 
 javacOptions in (Compile, compile) ++= {
@@ -13,7 +13,7 @@ javacOptions in (Compile, compile) ++= {
 }
 
 libraryDependencies += {
-  val v = if (scalaVersion.value == "2.13.0-M4") "3.0.6-SNAP1" else "3.0.5"
+  val v = if (scalaVersion.value == "2.13.0-M5") "3.0.6-SNAP5" else "3.0.5"
   "org.scalatest" %% "scalatest" % v % Test
 }
 

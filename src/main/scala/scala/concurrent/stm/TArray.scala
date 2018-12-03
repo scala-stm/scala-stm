@@ -38,15 +38,6 @@ object TArray {
      */
     def refViews: immutable.IndexedSeq[Ref.View[A]]
 
-    // this should not be abstract: https://github.com/scala/bug/issues/11006
-    def mapInPlace(f: A => A): this.type = {
-      var i = 0
-      while (i < length) {
-        update(i, f(apply(i)))
-        i = i + 1
-      }
-      this
-    }
   }
 
   //////////////// factory methods

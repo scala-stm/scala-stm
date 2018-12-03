@@ -195,7 +195,7 @@ class TMapSuite extends FunSuite {
       } else if (pct < 94) {
         assert(mut eq (mut --= Nil))
       } else if (pct < 95) {
-        mut = TMap(mut.toArray: _*).single
+        mut = TMap(mut.toSeq: _*).single
       } else if (pct < 96) {
         mut = TMap.empty[String, Int].single ++= mut
       } else if (pct < 97) {
@@ -267,7 +267,7 @@ class TMapSuite extends FunSuite {
       } else if (pct < 194) {
         assert(mut.tmap eq atomic { implicit t => mut.tmap --= Nil })
       } else if (pct < 195) {
-        mut = atomic { implicit t => TMap(mut.tmap.toArray: _*).single }
+        mut = atomic { implicit t => TMap(mut.tmap.toSeq: _*).single }
       } else if (pct < 196) {
         mut = atomic { implicit t => TMap.empty[String, Int] ++= mut.tmap }.single
       } else if (pct < 197) {

@@ -70,10 +70,10 @@ private[skel] class HashTrieTMap[A, B] private (root0: Ref.View[TxnHashTrie.Node
   def remove(key: A)(implicit txn: InTxn): Option[B] = txnRemove(key)
 
   def mapValuesInPlace(f: (A, B) => B)(implicit txn: InTxn): this.type = {
-    single.mapInPlace{ case (a, b) => (a, f(a, b)) }
+    single.mapValuesInPlace { case (a, b) => f(a, b) }
     this
   }
-  def filterInPlace(p: ((A, B)) => Boolean)(implicit txn: InTxn): this.type = {
+  def filterInPlace(p: (A, B) => Boolean)(implicit txn: InTxn): this.type = {
     single.filterInPlace(p)
     this
   }
