@@ -83,6 +83,9 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.Indexed
     }
     this
   }
+
+  protected def newSpecificBuilder: mutable.Builder[T, AtomicArray[T]]
+
 }
 
 object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
@@ -128,6 +131,7 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
   def apply[T](elems: IterableOnce[T])(implicit m: ClassTag[T]): AtomicArray[T] = {
     val array: Array[_] = elems match {
       case w: mutable.WrappedArray[_] => w.array // we're going to copy out regardless, no need to duplicate right now
+      case it: Iterable[T] => it.toArray
       case _ => elems.iterator.toArray
     }
     val result = array match {

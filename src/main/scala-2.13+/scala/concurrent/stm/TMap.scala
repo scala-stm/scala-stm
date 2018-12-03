@@ -118,7 +118,7 @@ trait TMap[A, B] extends TxnDebuggable {
   def -= (k1: A, k2: A, ks: A*)(implicit txn: InTxn): this.type = { this -= k1 -= k2 --= ks }
   def --= (ks: IterableOnce[A])(implicit txn: InTxn): this.type = { for (k <- ks.iterator) this -= k ; this }
 
-  @deprecated("Use .mapValuesInPlace instead of .retain", "0.8")
+  @deprecated("Use .mapValuesInPlace instead of .transform", "0.8")
   @`inline` final def transform(f: (A, B) => B)(implicit txn: InTxn): this.type = mapValuesInPlace(f)(txn)
 
   def mapValuesInPlace(f: (A, B) => B)(implicit txn: InTxn): this.type
