@@ -1,7 +1,7 @@
 
 name               := "scala-stm"
 organization       := "org.scala-stm"
-version            := "0.9"
+version            := "0.9.1-SNAPSHOT"
 def mimaVersion     = "0.9"
 scalaVersion       := "2.12.7"
 crossScalaVersions := Seq("2.11.12", "2.12.7", "2.13.0-M5")
