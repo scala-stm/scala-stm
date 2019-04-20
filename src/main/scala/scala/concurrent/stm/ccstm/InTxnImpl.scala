@@ -3,6 +3,7 @@
 package scala.concurrent.stm
 package ccstm
 
+import scala.{Symbol => Sym}
 
 private[ccstm] object InTxnImpl extends ThreadLocal[InTxnImpl] {
 
@@ -56,7 +57,7 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
 
   /** A read will barge if `_barding && version(meta) >= _bargeVersion`. */
   protected var _barging: Boolean = false
-  protected var _bargeVersion: Version = 0
+  protected var _bargeVersion: Version = 0L
 
   /** Non-negative values are assigned slots, negative values are the bitwise
    *  complement of the last used slot value.
@@ -87,7 +88,7 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
    *  `globalVersion.get`, must never decrease, and each time it is
    *  changed the read set must be revalidated.  Lazily assigned.
    */
-  private var _readVersion: Version = 0
+  private var _readVersion: Version = 0L
 
   /** The commit barrier in which this transaction is participating. */
   var commitBarrier: CommitBarrierImpl = null
@@ -99,7 +100,8 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
   def currentLevel: NestingLevel = {
     if (_subsumptionParent != null) {
       _subsumptionAllowed = false
-      _subsumptionParent.forceRollback(OptimisticFailureCause('restart_to_materialize_current_level, None))
+      _subsumptionParent.forceRollback(OptimisticFailureCause(
+        Sym("restart_to_materialize_current_level"), None))
       throw RollbackError
     }
     _currentLevel
@@ -140,19 +142,19 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
 
     // This test is _almost_ symmetric.  Tie goes to neither.
     if (this._priority <= owningRoot.txn._priority) {
-      resolveAsWWLoser(owningRoot, contended, ownerIsCommitting = false, msg = 'owner_has_priority)
+      resolveAsWWLoser(owningRoot, contended, ownerIsCommitting = false, msg = Sym("owner_has_priority"))
     } else {
       // This will resolve the conflict regardless of whether it succeeds or fails.
-      val s = owningRoot.requestRollback(OptimisticFailureCause('steal_by_higher_priority, Some(contended)))
+      val s = owningRoot.requestRollback(OptimisticFailureCause(Sym("steal_by_higher_priority"), Some(contended)))
       if (s == Preparing || s == Committing) {
         // owner can't be remotely canceled
-        val msg = if (s == Preparing) 'owner_is_preparing else 'owner_is_committing
+        val msg = Sym(if (s == Preparing) "owner_is_preparing" else "owner_is_committing")
         resolveAsWWLoser(owningRoot, contended, ownerIsCommitting = true, msg = msg)
       }
     }
   }
 
-  private def resolveAsWWLoser(owningRoot: TxnLevelImpl, contended: AnyRef, ownerIsCommitting: Boolean, msg: Symbol): Unit = {
+  private def resolveAsWWLoser(owningRoot: TxnLevelImpl, contended: AnyRef, ownerIsCommitting: Boolean, msg: Sym): Unit = {
     if (!shouldWaitAsWWLoser(owningRoot, ownerIsCommitting)) {
       // The failed write is in the current nesting level, so we only need to
       // invalidate one nested atomic block.  Nothing will get better for us
@@ -349,7 +351,7 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
         case x if x != RollbackError && !_currentLevel.executor.isControlFlow(x) =>
           // partial rollback is required, but we can't do it here
           _subsumptionAllowed = false
-          _currentLevel.forceRollback(OptimisticFailureCause('restart_to_enable_partial_rollback, Some(x)))
+          _currentLevel.forceRollback(OptimisticFailureCause(Sym("restart_to_enable_partial_rollback"), Some(x)))
           throw RollbackError
       }
     } finally {
@@ -748,7 +750,7 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
   private def consultExternalDecider(): Boolean = {
     try {
       if (!externalDecider.shouldCommit(this))
-        _currentLevel.forceRollback(OptimisticFailureCause('external_decision, None))
+        _currentLevel.forceRollback(OptimisticFailureCause(Sym("external_decision"), None))
     } catch {
       case x: Throwable => _currentLevel.forceRollback(UncaughtExceptionCause(x))
     }
@@ -833,18 +835,18 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
   }
 
   /** Returns the name of the problem on failure, null on success. */
-  private def checkRead(handle: Handle[_], ver: CCSTM.Version): Symbol = {
+  private def checkRead(handle: Handle[_], ver: CCSTM.Version): Sym = {
     (while (true) {
       val m1 = handle.meta
       if (!changing(m1) || owner(m1) == _slot) {
         if (version(m1) != ver)
-          return 'stale_read
+          return Sym("stale_read")
         // okay
         return null
       } else if (owner(m1) == nonTxnSlot) {
         // non-txn updates don't set changing unless they will install a new
         // value, so we are the only party that can yield
-        return 'read_vs_nontxn_write
+        return Sym("read_vs_nontxn_write")
       } else {
         // Either this txn or the owning txn must roll back.  We choose to
         // give precedence to the owning txn, as it is the writer and is
@@ -865,7 +867,7 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
           val m2 = handle.meta
           if (changing(m2) && owner(m2) == owner(m1)) {
             if (!s.isInstanceOf[RolledBack])
-              return 'read_vs_pending_commit
+              return Sym("read_vs_pending_commit")
 
             stealHandle(handle, m2, o)
           }

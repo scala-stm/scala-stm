@@ -99,7 +99,7 @@ private[stm] trait AbstractInTxn extends InTxn {
     var i = 0
     val inOrder = s eq Committed
     var j = if (inOrder) 0 else handlers.length - 1
-    var dj = if (inOrder) 1 else -1
+    val dj = if (inOrder) 1 else -1
     while (i < handlers.length) {
       failure = firePostDecision(handlers(j), s, exec, s, failure)
       i += 1

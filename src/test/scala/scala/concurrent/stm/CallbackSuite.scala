@@ -2,9 +2,9 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
 import java.util.concurrent.CountDownLatch
 
+import org.scalatest.FunSuite
 
 class CallbackSuite extends FunSuite {
 
@@ -198,7 +198,7 @@ class CallbackSuite extends FunSuite {
   }
 
   test("beforeCommit during beforeCommit") {
-    val handler = new Function1[InTxn, Unit] {
+    val handler: InTxn => Unit = new Function1[InTxn, Unit] {
       var count = 0
 
       def apply(txn: InTxn): Unit = {
@@ -443,6 +443,7 @@ class CallbackSuite extends FunSuite {
           def shouldCommit(implicit txn: InTxnEnd): Boolean = { which = 3 ; true }
         })
         x.swap(3)
+        ()
       }
     }
     assert(which === 3)

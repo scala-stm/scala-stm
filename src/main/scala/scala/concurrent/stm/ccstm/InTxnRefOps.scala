@@ -3,8 +3,8 @@
 package scala.concurrent.stm
 package ccstm
 
-import skel._
-
+import scala.concurrent.stm.skel._
+import scala.{Symbol => Sym}
 
 private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInTxn {
   import CCSTM._
@@ -108,12 +108,12 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
     val u = unrecordedRead(handle)
     val result = f(u.value)
     if (!u.recorded) {
-      val callback = new Function[NestingLevel, Unit] {
+      val callback: NestingLevel => Unit = new Function[NestingLevel, Unit] {
         var _latestRead: UnrecordedRead[T] = u
 
         def apply(level: NestingLevel): Unit =
           if (!isValid) {
-            level.requestRollback(OptimisticFailureCause('invalid_getWith, Some(handle)))
+            level.requestRollback(OptimisticFailureCause(Sym("invalid_getWith"), Some(handle)))
           }
 
         private def isValid: Boolean = {
@@ -157,12 +157,12 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
     val u = unrecordedRead(handle)
     val snapshot = u.value
     if (!u.recorded) {
-      val callback = new Function[NestingLevel, Unit] {
+      val callback: NestingLevel => Unit = new Function[NestingLevel, Unit] {
         var _latestRead: UnrecordedRead[T] = u
 
         def apply(level: NestingLevel): Unit = {
           if (!isValid)
-            level.requestRollback(OptimisticFailureCause('invalid_relaxed_get, Some(handle)))
+            level.requestRollback(OptimisticFailureCause(Sym("invalid_relaxed_get"), Some(handle)))
         }
 
         private def isValid: Boolean = {
@@ -215,7 +215,7 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
         while (changing(m0)) {
           if (status != Active) {
             // can't wait
-            forceRollback(OptimisticFailureCause('late_invalid_unrecordedRead, Some(handle)))
+            forceRollback(OptimisticFailureCause(Sym("late_invalid_unrecordedRead"), Some(handle)))
             throw RollbackError
           }
           weakAwaitUnowned(handle, m0)
@@ -224,7 +224,7 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
         if (isNewerThanReadVersion(version(m0))) {
           if (status != Active) {
             // can't wait
-            forceRollback(OptimisticFailureCause('late_invalid_unrecordedRead, Some(handle)))
+            forceRollback(OptimisticFailureCause(Sym("late_invalid_unrecordedRead"), Some(handle)))
             throw RollbackError
           }
           revalidate(version(m0))
@@ -371,12 +371,12 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
     if (!pf.isDefinedAt(u.value)) {
       // make sure it stays undefined
       if (!u.recorded) {        
-        val callback = new Function[NestingLevel, Unit] {
+        val callback: NestingLevel => Unit = new Function[NestingLevel, Unit] {
           var _latestRead: UnrecordedRead[T] = u
 
           def apply(level: NestingLevel): Unit =
             if (!isValid) {
-              level.requestRollback(OptimisticFailureCause('invalid_getWith, Some(handle)))
+              level.requestRollback(OptimisticFailureCause(Sym("invalid_getWith"), Some(handle)))
             }
 
           private def isValid: Boolean = {

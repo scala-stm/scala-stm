@@ -62,6 +62,7 @@ class TSetSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         mut ++= (200 until 300)
+        ()
       }
       val z = mut.clone.single
       atomic { implicit txn =>
@@ -70,6 +71,7 @@ class TSetSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         mut ++= (400 until 500)
+        ()
       }
       z
     }
@@ -89,6 +91,7 @@ class TSetSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         mut ++= (200 until 205)
+        ()
       }
       val z = mut.clone.single
       atomic { implicit txn =>
@@ -97,6 +100,7 @@ class TSetSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         z ++= (400 until 405)
+        ()
       }
       z
     }

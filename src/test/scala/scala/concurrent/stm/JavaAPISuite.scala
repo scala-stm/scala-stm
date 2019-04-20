@@ -2,6 +2,6 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.junit.JUnitWrapperSuite
+import org.scalatestplus.junit.JUnitWrapperSuite
 
 class JavaAPISuite extends JUnitWrapperSuite("scala.concurrent.stm.JavaAPITests", Thread.currentThread.getContextClassLoader)

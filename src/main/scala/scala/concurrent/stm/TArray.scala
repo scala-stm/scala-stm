@@ -2,9 +2,8 @@
 
 package scala.concurrent.stm
 
-import scala.concurrent.stm.compat._
-
 import scala.collection.{immutable, mutable}
+import scala.concurrent.stm.compat._
 import scala.reflect.ClassTag
 
 object TArray {

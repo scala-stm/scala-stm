@@ -2,15 +2,12 @@
 
 package scala.concurrent.stm.skel
 
-import scala.concurrent.stm.compat._
-
 import java.util.concurrent.atomic._
 
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
 import scala.reflect.ClassTag
-
 
 /** `AtomicArray` implements a fixed-length indexed sequence where reads and
  *  writes have volatile semantics.  In addition, it adds an atomic swap

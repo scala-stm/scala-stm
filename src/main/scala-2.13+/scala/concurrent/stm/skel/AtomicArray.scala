@@ -5,10 +5,8 @@ package scala.concurrent.stm.skel
 import java.util.concurrent.atomic._
 
 import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.collection.{mutable, ClassTagSeqFactory, StrictOptimizedClassTagSeqFactory, SeqFactory, IterableOnce}
+import scala.collection.{ClassTagSeqFactory, IterableOnce, SeqFactory, StrictOptimizedClassTagSeqFactory, mutable}
 import scala.reflect.ClassTag
-
 
 /** `AtomicArray` implements a fixed-length indexed sequence where reads and
  *  writes have volatile semantics.  In addition, it adds an atomic swap
@@ -106,14 +104,14 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
     }).asInstanceOf[AtomicArray[T]]
   }
 
-  def apply(elems: Array[Boolean]) = new ofBoolean(new AtomicIntegerArray(elems map {if(_) 1 else 0}))
-  def apply(elems: Array[Byte])    = new ofByte(   new AtomicIntegerArray(elems map {_.toInt}))
-  def apply(elems: Array[Short])   = new ofShort(  new AtomicIntegerArray(elems map {_.toInt}))
-  def apply(elems: Array[Char])    = new ofChar(   new AtomicIntegerArray(elems map {_.toInt}))
+  def apply(elems: Array[Boolean]) = new ofBoolean(new AtomicIntegerArray(elems.map(if(_) 1 else 0)))
+  def apply(elems: Array[Byte])    = new ofByte(   new AtomicIntegerArray(elems.map(_.toInt)))
+  def apply(elems: Array[Short])   = new ofShort(  new AtomicIntegerArray(elems.map(_.toInt)))
+  def apply(elems: Array[Char])    = new ofChar(   new AtomicIntegerArray(elems.map(_.toInt)))
   def apply(elems: Array[Int])     = new ofInt(    new AtomicIntegerArray(elems))
-  def apply(elems: Array[Float])   = new ofFloat(  new AtomicIntegerArray(elems map {java.lang.Float.floatToRawIntBits(_)}))
-  def apply(elems: Array[Long])    = new ofLong(   new AtomicLongArray(elems))
-  def apply(elems: Array[Double])  = new ofDouble( new AtomicLongArray(elems map {java.lang.Double.doubleToRawLongBits(_)}))
+  def apply(elems: Array[Float])   = new ofFloat(  new AtomicIntegerArray(elems.map(java.lang.Float.floatToRawIntBits)))
+  def apply(elems: Array[Long])    = new ofLong(   new AtomicLongArray   (elems))
+  def apply(elems: Array[Double])  = new ofDouble( new AtomicLongArray   (elems.map(java.lang.Double.doubleToRawLongBits)))
   def apply(elems: Array[Unit])    = new ofUnit(   elems.length)
   def apply[T <: AnyRef](elems: Array[T]) =
     new ofRef(new AtomicReferenceArray(elems.asInstanceOf[Array[AnyRef]]).asInstanceOf[AtomicReferenceArray[T]])

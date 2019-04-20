@@ -152,14 +152,14 @@ object STM {
    * @param ref the `Ref.View<Integer>` to be incremented
    * @param delta the amount to increment
    */
-  def increment(ref: Ref.View[java.lang.Integer], delta: Int): Unit = ref.transform { v ⇒ v.intValue + delta }
+  def increment(ref: Ref.View[java.lang.Integer], delta: Int): Unit = ref.transform(_.intValue + delta)
 
   /**
    * Increment the `java.lang.Long` value of a `Ref.View`.
    * @param ref the `Ref.View<Long>` to be incremented
    * @param delta the amount to increment
    */
-  def increment(ref: Ref.View[java.lang.Long], delta: Long): Unit = ref.transform { v ⇒ v.longValue + delta }
+  def increment(ref: Ref.View[java.lang.Long], delta: Long): Unit = ref.transform(_.longValue + delta)
 
   private def activeTxn = Txn.findCurrent match {
     case Some(txn) => txn

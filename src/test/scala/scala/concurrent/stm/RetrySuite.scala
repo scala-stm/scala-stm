@@ -173,6 +173,7 @@ class RetrySuite extends FunSuite {
       buf += 'e'
       retryFor(1)
       buf += 'f'
+      ()
     } orAtomic { implicit txn =>
       if (x() == 0) retry
     }

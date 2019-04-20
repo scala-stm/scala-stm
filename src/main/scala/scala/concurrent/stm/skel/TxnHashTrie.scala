@@ -126,7 +126,7 @@ private[skel] object TxnHashTrie {
         runtime.BoxesRunTime.equals2(lhs, rhs)
     }
 
-    def noChange[B](i: Int, value: B): Boolean = {
+    def noChange[C](i: Int, value: C): Boolean = {
       i >= 0 && (kvs(2 * i + 1) eq value.asInstanceOf[AnyRef])
     }
 

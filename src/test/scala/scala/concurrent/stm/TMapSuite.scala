@@ -66,6 +66,7 @@ class TMapSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         mut ++= kvRange(200, 300)
+        ()
       }
       val z = mut.clone.single
       atomic { implicit txn =>
@@ -74,6 +75,7 @@ class TMapSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         mut ++= kvRange(400, 500)
+        ()
       }
       z
     }
@@ -93,6 +95,7 @@ class TMapSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         mut ++= kvRange(200, 205)
+        ()
       }
       val z = mut.clone.single
       atomic { implicit txn =>
@@ -101,6 +104,7 @@ class TMapSuite extends FunSuite {
           retry
       } orAtomic { implicit txn =>
         z ++= kvRange(400, 405)
+        ()
       }
       z
     }

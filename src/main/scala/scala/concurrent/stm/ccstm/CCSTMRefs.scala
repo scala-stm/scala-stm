@@ -3,26 +3,25 @@
 package scala.concurrent.stm
 package ccstm
 
-import scala.concurrent.stm.compat._
-
 import java.util.concurrent.atomic.AtomicLongFieldUpdater
 
 import scala.collection.mutable
+import scala.concurrent.stm.compat._
 import scala.reflect.ClassTag
 
 private[ccstm] object CCSTMRefs {
   
   trait Factory extends impl.RefFactory {
     def newRef(v0: Boolean): Ref[Boolean] = new BooleanRef(v0)
-    def newRef(v0: Byte): Ref[Byte] = new ByteRef(v0)
-    def newRef(v0: Short): Ref[Short] = new ShortRef(v0)
-    def newRef(v0: Char): Ref[Char] = new CharRef(v0)
-    def newRef(v0: Int): Ref[Int] = new IntRef(v0)
-    def newRef(v0: Float): Ref[Float] = new FloatRef(v0)
-    def newRef(v0: Long): Ref[Long] = new LongRef(v0)
-    def newRef(v0: Double): Ref[Double] = new DoubleRef(v0)
-    def newRef(v0: Unit): Ref[Unit] = new GenericRef(v0)
-    def newRef[T : ClassTag](v0: T): Ref[T] = new GenericRef(v0)
+    def newRef(v0: Byte   ): Ref[Byte   ] = new ByteRef   (v0)
+    def newRef(v0: Short  ): Ref[Short  ] = new ShortRef  (v0)
+    def newRef(v0: Char   ): Ref[Char   ] = new CharRef   (v0)
+    def newRef(v0: Int    ): Ref[Int    ] = new IntRef    (v0)
+    def newRef(v0: Float  ): Ref[Float  ] = new FloatRef  (v0)
+    def newRef(v0: Long   ): Ref[Long   ] = new LongRef   (v0)
+    def newRef(v0: Double ): Ref[Double ] = new DoubleRef (v0)
+    def newRef(v0: Unit   ): Ref[Unit   ] = new GenericRef(v0)
+    def newRef[T: ClassTag](v0: T): Ref[T]= new GenericRef(v0)
 
     def newTxnLocal[A](init: => A,
                        initialValue: InTxn => A,

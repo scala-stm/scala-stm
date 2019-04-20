@@ -2,8 +2,7 @@
 
 package scala.concurrent.stm
 
-import scala.collection.MapFactory
-import scala.collection.{generic, immutable, mutable}
+import scala.collection.{MapFactory, immutable, mutable}
 import scala.language.implicitConversions
 
 object TMap extends MapFactory[TMap] {
