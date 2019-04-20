@@ -180,7 +180,7 @@ class TMapSuite extends FunSuite {
         val kv2 = nextKey -> nextValue
         val kv3 = nextKey -> nextValue
         assert(base eq (base ++= Array(k -> v, kv2, kv3)))
-        assert(mut eq (mut ++= Array(k -> v, kv2, kv3)))
+        assert(mut  eq (mut  ++= Array(k -> v, kv2, kv3)))
       } else if (pct < 83) {
         assert(mut eq (mut ++= Nil))
       } else if (pct < 88) {
@@ -190,12 +190,12 @@ class TMapSuite extends FunSuite {
         val k2 = nextKey()
         val k3 = nextKey()
         assert(base eq (base --= Array(k, k2, k3)))
-        assert(mut eq (mut --= Array(k, k2, k3)))
+        assert(mut  eq (mut  --= Array(k, k2, k3)))
       } else if (pct < 93) {
         val k2 = nextKey()
         val k3 = nextKey()
         assert(base eq (base --= Array(k, k2, k3)))
-        assert(mut eq (mut --= Array(k, k2, k3)))
+        assert(mut  eq (mut  --= Array(k, k2, k3)))
       } else if (pct < 94) {
         assert(mut eq (mut --= Nil))
       } else if (pct < 95) {
@@ -310,12 +310,12 @@ class TMapSuite extends FunSuite {
         assert(b === s)
       } else if (pct < 208) {
         val cutoff = rand.nextInt()
-        assert(base eq base.filterInPlace { case (_, v) => v < cutoff })
-        assert(mut  eq mut .filterInPlace { case (_, v) => v < cutoff })
+        assert(base eq base.filterInPlace { case (_, v1) => v1 < cutoff })
+        assert(mut  eq mut .filterInPlace { case (_, v1) => v1 < cutoff })
       } else if (pct < 211) {
         val cutoff = rand.nextInt()
-        assert(base eq base.filterInPlace { case (_, v) => v < cutoff })
-        assert(mut.tmap eq atomic { implicit txn => mut.tmap.filterInPlace { case (_, v) => v < cutoff } })
+        assert(base eq base.filterInPlace { case (_, v1) => v1 < cutoff })
+        assert(mut.tmap eq atomic { implicit txn => mut.tmap.filterInPlace { case (_, v1) => v1 < cutoff } })
       } else if (pct < 214) {
         val k = nextKey()
         val v = nextValue()
@@ -335,7 +335,7 @@ class TMapSuite extends FunSuite {
         assert(mut  eq mut .mapValuesInPlace { (_, v) => v + 1 })
       } else if (pct < 223) {
         assert(base eq base.mapValuesInPlace { (_, v) => v + 1 })
-        assert(mut.tmap eq atomic { implicit txn => mut.tmap.mapValuesInPlace { case (_, v) => v + 1 } })
+        assert(mut.tmap eq atomic { implicit txn => mut.tmap.mapValuesInPlace { case (_, v1) => v1 + 1 } })
       } else if (pct < 225) {
         val b2 = base map { kv => kv._1 -> kv._2 * 1L }
         val m2 = mut  map { kv => kv._1 -> kv._2 * 1L }

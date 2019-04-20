@@ -80,7 +80,7 @@ class InterruptSuite extends FunSuite {
     for (t <- threads) t.join()
     if (failure != null)
       throw failure
-    println(txnInterrupts.get + " txn rollbacks, " + nonTxnInterrupts.get + " non-txn interrupts")
+    println(s"${txnInterrupts.get} txn rollbacks, ${nonTxnInterrupts.get} non-txn interrupts")
   }
 
   //////// machinery for InterruptSuite

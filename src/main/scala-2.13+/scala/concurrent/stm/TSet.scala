@@ -2,7 +2,8 @@
 
 package scala.concurrent.stm
 
-import scala.collection.{IterableFactory, immutable, mutable}
+import scala.collection.mutable.Set
+import scala.collection.{IterableFactory, IterableFactoryDefaults, immutable, mutable}
 import scala.language.implicitConversions
 
 object TSet extends IterableFactory[TSet] {
@@ -17,7 +18,10 @@ object TSet extends IterableFactory[TSet] {
   }
 
   /** A `Set` that provides atomic execution of all of its methods. */
-  trait View[A] extends mutable.Set[A] with mutable.SetOps[A, TSet.View, TSet.View[A]] with TxnDebuggable {
+  trait View[A] extends mutable.Set[A]
+    with mutable.SetOps[A, TSet.View, TSet.View[A]]
+    with IterableFactoryDefaults[A, TSet.View]
+    with TxnDebuggable {
 
     /** Returns the `TSet` perspective on this transactional set, which
      *  provides set functionality only inside atomic blocks.

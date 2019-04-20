@@ -2,13 +2,13 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{LinkedTransferQueue, TimeUnit}
 
 import org.scalatest.FunSuite
 
-import java.util.concurrent.LinkedTransferQueue
 import scala.concurrent.stm.skel.SimpleRandom
 import scala.util.control.Breaks
+import scala.{Symbol => Sym}
 
 class CommitBarrierSuite extends FunSuite {
 
@@ -292,17 +292,17 @@ class CommitBarrierSuite extends FunSuite {
   }
 
   test("cycle 2 x 1000") {
-    for (i <- 0 until 1000)
+    for (_ <- 0 until 1000)
       doCycle(2)
   }
 
   test("cycle 3 x 1000") {
-    for (i <- 0 until 1000)
+    for (_ <- 0 until 1000)
       doCycle(3)
   }
 
   test("cycle 1000 x 3") {
-    for (i <- 0 until 3)
+    for (_ <- 0 until 3)
       doCycle(1000)
   }
 
@@ -328,7 +328,7 @@ class CommitBarrierSuite extends FunSuite {
         t.start()
         txn.afterCommit { _ => t.join() }
         if (i < 10)
-          Txn.rollback(Txn.OptimisticFailureCause('test, None))
+          Txn.rollback(Txn.OptimisticFailureCause(Sym("test"), None))
         "hello"
       }
       assert(z === Right("hello"))

@@ -8,13 +8,21 @@ import scala.collection.{immutable, mutable}
 private[stm] object TMapViaClone {
   class FrozenMutableMap[A, B](self: mutable.Map[A, B]) extends immutable.Map[A, B] {
     override def isEmpty: Boolean = self.isEmpty
+
     override def size: Int = self.size
-    def get(key: A): Option[B] = self.get(key)
-    def iterator: Iterator[(A, B)] = self.iterator
+
+    override def get(key: A): Option[B] = self.get(key)
+
+    override def iterator: Iterator[(A, B)] = self.iterator
+
     override def foreach[U](f: ((A, B)) => U): Unit = { self foreach f }
+
     override def updated[B1 >: B](key: A, value: B1): immutable.Map[A, B1] =
         new FrozenMutableMap(self.clone().asInstanceOf[mutable.Map[A, B1]] += ((key, value)))
-    def remove(key: A): immutable.Map[A, B] = new FrozenMutableMap(self.clone() -= key)
+
+//    def remove(key: A): immutable.Map[A, B] = new FrozenMutableMap(self.clone() -= key)
+
+    override def removed(key: A):immutable.Map[A, B] = new FrozenMutableMap(self.clone() -= key)
   }
 }
 

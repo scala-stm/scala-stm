@@ -1,4 +1,4 @@
-def projectVersion  = "0.9.1-SNAPSHOT"
+def projectVersion  = "0.9.1"
 def mimaVersion     = "0.9"
 
 lazy val root = project.in(file("."))
@@ -17,7 +17,7 @@ lazy val commonSettings = Seq(
   organization       := "org.scala-stm",
   version            := projectVersion,
   description        := "A library for Software Transactional Memory in Scala",
-  scalaVersion       := "2.13.0-RC1",
+  scalaVersion       := "2.12.8",
   crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0-RC1"),
   scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature", "-Xsource:2.13"),
   scalacOptions     ++= {

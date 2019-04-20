@@ -5,7 +5,7 @@ package scala.concurrent.stm.skel
 import java.util.concurrent.atomic._
 
 import scala.annotation.tailrec
-import scala.collection.{ClassTagSeqFactory, IterableOnce, SeqFactory, StrictOptimizedClassTagSeqFactory, mutable}
+import scala.collection.{ClassTagSeqFactory, IterableFactoryDefaults, IterableOnce, SeqFactory, StrictOptimizedClassTagSeqFactory, mutable}
 import scala.reflect.ClassTag
 
 /** `AtomicArray` implements a fixed-length indexed sequence where reads and
@@ -26,7 +26,9 @@ import scala.reflect.ClassTag
  *
  *  @author Nathan Bronson
  */
-abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.IndexedSeqOps[T, AtomicArray, AtomicArray[T]] {
+abstract class AtomicArray[T] extends mutable.IndexedSeq[T]
+  with mutable.IndexedSeqOps  [T, AtomicArray, AtomicArray[T]]
+  with IterableFactoryDefaults[T, AtomicArray] {
 
   // We choose to store Boolean-s (and other small primitives) each in their
   // own Int.  This wastes space.  Another option would be to pack values into
@@ -66,14 +68,11 @@ abstract class AtomicArray[T] extends mutable.IndexedSeq[T] with mutable.Indexed
 
   /** Clones this object, including the underlying Array. */
   override def clone: AtomicArray[T] = {
-    val b = newSpecificBuilder
+    val b: mutable.Builder[T, AtomicArray[T]] = newSpecificBuilder
     b.sizeHint(length)
     b ++= this
     b.result()
   }
-
-  protected def newSpecificBuilder: mutable.Builder[T, AtomicArray[T]]
-
 }
 
 object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {

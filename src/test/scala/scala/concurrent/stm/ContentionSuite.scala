@@ -165,6 +165,6 @@ class ContentionSuite extends FunSuite {
     for (t <- threads) t.start()
     for (t <- threads) t.join()
     assert(total.single() > 0)
-    println(total.single() + " rejected trySet-s")
+    println(s"${total.single()} rejected trySet-s")
   }
 }

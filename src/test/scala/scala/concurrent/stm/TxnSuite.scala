@@ -422,7 +422,7 @@ class TxnSuite extends FunSuite {
 
     // We can't assert, because different STMs might do different things.
     // For CCSTM it should be 1, 2
-    println("xtries = " + xtries + ", ytries = " + ytries)
+    println(s"xtries = $xtries, ytries = $ytries")
   }
 
   test("await") {
@@ -550,7 +550,7 @@ class TxnSuite extends FunSuite {
     for (t <- threads) t.start()
     for (t <- threads) t.join()
     val elapsed = System.currentTimeMillis - begin
-    println(threads.length + " empty sleep(1000) txns took " + elapsed + " millis")
+    println(s"${threads.length} empty sleep(1000) txns took $elapsed millis")
   }
 
   perfTest("uncontended R+W txn perf") { (x, _) =>
@@ -642,7 +642,7 @@ class TxnSuite extends FunSuite {
         val elapsed = System.nanoTime - begin
         best = best min elapsed
       }
-      println(name + ": best was " + (best / 10.0) + " nanos/txn")
+      println(s"$name: best was ${(best / 10.0)} nanos/txn")
     }
   }
 }

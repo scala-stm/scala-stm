@@ -6,6 +6,8 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 import org.scalatest.FunSuite
 
+import scala.{Symbol => Sym}
+
 /** Contains extended tests of `retry`, `retryFor` and `tryAwait`.  Some basic
  *  tests are included in `TxnSuite`.
  */
@@ -352,7 +354,7 @@ class RetrySuite extends FunSuite {
         NestingLevel.current
         tries += 1
         if (tries < 50)
-          Txn.rollback(Txn.OptimisticFailureCause('test, None))
+          Txn.rollback(Txn.OptimisticFailureCause(Sym("test"), None))
         b.countDown()
 
         z() = 3
@@ -380,7 +382,7 @@ class RetrySuite extends FunSuite {
     atomic { implicit txn =>
       tries += 1
       if (tries < 50)
-        Txn.rollback(Txn.OptimisticFailureCause('test, None))
+        Txn.rollback(Txn.OptimisticFailureCause(Sym("test"), None))
 
       val sum = refs.foldLeft(0)( _ + _.get )
       b.countDown()
@@ -406,7 +408,7 @@ class RetrySuite extends FunSuite {
     atomic { implicit txn =>
       tries += 1
       if (tries < 50)
-        Txn.rollback(Txn.OptimisticFailureCause('test, None))
+        Txn.rollback(Txn.OptimisticFailureCause(Sym("test"), None))
 
       for (r <- refs.take(500))
         r *= 2

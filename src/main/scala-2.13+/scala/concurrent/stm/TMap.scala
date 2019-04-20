@@ -2,7 +2,8 @@
 
 package scala.concurrent.stm
 
-import scala.collection.{MapFactory, immutable, mutable}
+import scala.collection.mutable.Iterable
+import scala.collection.{MapFactory, MapFactoryDefaults, immutable, mutable}
 import scala.language.implicitConversions
 
 object TMap extends MapFactory[TMap] {
@@ -17,7 +18,10 @@ object TMap extends MapFactory[TMap] {
   }
 
   /** A `Map` that provides atomic execution of all of its methods. */
-  trait View[A, B] extends mutable.Map[A, B] with mutable.MapOps[A, B, TMap.View, TMap.View[A, B]] with TxnDebuggable {
+  trait View[A, B] extends mutable.Map[A, B]
+    with mutable.MapOps    [A, B, TMap.View, TMap.View[A, B]]
+    with MapFactoryDefaults[A, B, TMap.View, mutable.Iterable]
+    with TxnDebuggable {
 
     /** Returns the `TMap` perspective on this transactional map, which
      *  provides map functionality only inside atomic blocks.
