@@ -18,7 +18,7 @@ lazy val commonSettings = Seq(
   version            := projectVersion,
   description        := "A library for Software Transactional Memory in Scala",
   scalaVersion       := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0-RC3"),
+  crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0"),
   scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature", "-Xsource:2.13"),
   scalacOptions     ++= {
     if (scalaVersion.value.startsWith("2.11")) Nil else Seq("-Xlint:-unused,_")
@@ -29,11 +29,11 @@ lazy val commonSettings = Seq(
   },
   libraryDependencies += {
     val v = "3.0.8-RC5"
-    // if (scalaVersion.value == "2.13.0-RC2") {
-    //   "org.scalatest" % "scalatest_2.13.0-RC1" % v % Test,
-    // } else {
+    if (scalaVersion.value == "2.13.0") {
+      "org.scalatest" % "scalatest_2.13.0-RC3" % v % Test,
+    } else {
       "org.scalatest" %% "scalatest" % v % Test,
-    // }
+    }
   },
   libraryDependencies ++= Seq(
     "junit"         % "junit"       % "4.12"      % Test
