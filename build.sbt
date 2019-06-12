@@ -28,12 +28,7 @@ lazy val commonSettings = Seq(
     Seq("-source", javaVersion, "-target", javaVersion)
   },
   libraryDependencies += {
-    val v = "3.0.8-RC5"
-    if (scalaVersion.value == "2.13.0") {
-      "org.scalatest" % "scalatest_2.13.0-RC3" % v % Test,
-    } else {
-      "org.scalatest" %% "scalatest" % v % Test,
-    }
+    "org.scalatest" %% "scalatest" % "3.0.8" % Test,
   },
   libraryDependencies ++= Seq(
     "junit"         % "junit"       % "4.12"      % Test
