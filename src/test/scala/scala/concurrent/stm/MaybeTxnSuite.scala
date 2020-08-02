@@ -2,9 +2,9 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class MaybeTxnSuite extends FunSuite {
+class MaybeTxnSuite extends AnyFunSuite {
   test("implicit InTxn match") {
     implicit val txn: InTxn = new skel.StubInTxn
 

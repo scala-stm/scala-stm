@@ -26,7 +26,7 @@ private[ccstm] object NonTxn {
     // spin a bit
     val m = 0L
     var spins = 0
-    do {
+    while ({
       val m = handle.meta
       if (version(m) != version(m0))
         return
@@ -34,7 +34,9 @@ private[ccstm] object NonTxn {
       spins += 1
       if (spins > SpinCount)
         Thread.`yield`()
-    } while (spins < SpinCount + YieldCount)
+
+      spins < SpinCount + YieldCount
+    }) ()
 
     weakNoSpinAwaitNewVersion(handle, m)
   }
@@ -43,7 +45,7 @@ private[ccstm] object NonTxn {
   private def weakNoSpinAwaitNewVersion(handle: Handle[_], m0: Meta): Unit = {
     val event = wakeupManager.subscribe
     event.addSource(handle)
-    do {
+    while ({
       val m = handle.meta
       if (version(m) != version(m0) || changing(m)) {
         // observed new version, or likely new version (after unlock)
@@ -57,7 +59,9 @@ private[ccstm] object NonTxn {
         event.await()
         return
       }
-    } while (!event.triggered)
+
+      !event.triggered
+    }) ()
   }
 
   //////////////// value waiting with timeout
@@ -67,7 +71,7 @@ private[ccstm] object NonTxn {
     // spin a bit
     val m = 0L
     var spins = 0
-    do {
+    while ({
       val m = handle.meta
       if (version(m) != version(m0))
         return true
@@ -78,7 +82,9 @@ private[ccstm] object NonTxn {
           return false
         Thread.`yield`()
       }
-    } while (spins < SpinCount + YieldCount)
+
+      spins < SpinCount + YieldCount
+    }) ()
 
     if (changing(m)) {
       // ignore deadline for this, it should be fast
@@ -93,7 +99,7 @@ private[ccstm] object NonTxn {
   private def weakNoSpinAwaitNewVersion(handle: Handle[_], m0: Meta, nanoDeadline: Long): Boolean = {
     val event = wakeupManager.subscribe
     event.addSource(handle)
-    do {
+    while ({
       val m = handle.meta
       if (version(m) != version(m0) || changing(m)) {
         // observed new version, or likely new version (after unlock)
@@ -106,7 +112,10 @@ private[ccstm] object NonTxn {
         // likelihood (spurious wakeups are okay)
         return event.tryAwaitUntil(nanoDeadline)
       }
-    } while (!event.triggered)
+
+      !event.triggered
+    }) ()
+
     true
   }
 
@@ -116,7 +125,7 @@ private[ccstm] object NonTxn {
   private def acquireLock(handle: Handle[_], exclusive: Boolean): Meta = {
     var m0 = 0L
     var m1 = 0L
-    do {
+    while ({
       m0 = handle.meta
       while (owner(m0) != unownedSlot) {
         weakAwaitUnowned(handle, m0)
@@ -124,7 +133,10 @@ private[ccstm] object NonTxn {
       }
       val mOwned = withOwner(m0, nonTxnSlot)
       m1 = if (exclusive) withChanging(mOwned) else mOwned
-    } while (!handle.metaCAS(m0, m1))
+
+      !handle.metaCAS(m0, m1)
+    }) ()
+
     m1
   }
 
@@ -312,7 +324,7 @@ private[ccstm] object NonTxn {
     var m0 = 0L
     var m1 = 0L
     var v: T = null.asInstanceOf[T]
-    do {
+    while ({
       m0 = handle.meta
       while (changing(m0)) {
         weakAwaitUnowned(handle, m0)
@@ -320,7 +332,9 @@ private[ccstm] object NonTxn {
       }
       v = handle.data
       m1 = handle.meta
-    } while (changingAndVersion(m0) != changingAndVersion(m1))
+
+      changingAndVersion(m0) != changingAndVersion(m1)
+    }) ()
 
     // invisible failure?
     if (!(before == v)) return false
@@ -441,7 +455,7 @@ private[ccstm] object NonTxn {
     var mA0: Long = 0L
     var mB0: Long = 0L
     var tries = 0
-    do {
+    while ({
       mA0 = acquireLock(handleA, exclusive = true)
       mB0 = tryAcquireExclusiveLock(handleB)
       if (mB0 == 0) {
@@ -467,7 +481,9 @@ private[ccstm] object NonTxn {
             return fallbackTransform2(handleA, handleB, f)
         }
       }
-    } while (mB0 == 0)
+
+      mB0 == 0
+    }) ()
 
     val (a, b, z) = try {
       f(handleA.data, handleB.data)

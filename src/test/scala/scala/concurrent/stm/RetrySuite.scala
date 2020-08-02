@@ -4,14 +4,14 @@ package scala.concurrent.stm
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.{Symbol => Sym}
 
 /** Contains extended tests of `retry`, `retryFor` and `tryAwait`.  Some basic
  *  tests are included in `TxnSuite`.
  */
-class RetrySuite extends FunSuite {
+class RetrySuite extends AnyFunSuite {
 
   def timingAssert(ok: Boolean): Unit =
     if (!ok) {

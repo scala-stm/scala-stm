@@ -92,7 +92,7 @@ object SimpleRandom {
 class SimpleRandom private (private var _state: Long, dummy: Boolean) {
   import SimpleRandom._
 
-  def this(seed: Int) = this(SimpleRandom.step(SimpleRandom.step(seed)), false)
+  def this(seed: Int) = this(SimpleRandom.step(SimpleRandom.step(seed.toLong)), false)
   def this() = this(System.identityHashCode(Thread.currentThread))
 
   override def clone = new SimpleRandom(_state, false)

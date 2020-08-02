@@ -4,7 +4,7 @@ package scala.concurrent.stm
 
 import java.util.concurrent.CyclicBarrier
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.immutable
 
@@ -13,7 +13,7 @@ import scala.collection.immutable
  *
  *  @author Nathan Bronson
  */
-class FlipperSuite extends FunSuite {
+class FlipperSuite extends AnyFunSuite {
   val DEFAULT_SYNC_COUNT = 3
   val DEFAULT_TRANS_COUNT = 100
   val DEFAULT_INSTR_COUNT = 100

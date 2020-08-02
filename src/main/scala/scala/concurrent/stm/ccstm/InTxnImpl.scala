@@ -736,12 +736,15 @@ private[ccstm] class InTxnImpl extends InTxnRefOps {
       // acquireLock is inlined to reduce the call depth from TxnExecutor.apply
       val handle = getWriteHandle(i)
       var m = 0L
-      do {
+      while ({
         m = handle.meta
         if (owner(m) != _slot && m != txnLocalMeta)
           return false
         // we have to use CAS to guard against remote steal
-      } while (!changing(m) && !handle.metaCAS(m, withChanging(m)))
+
+        !changing(m) && !handle.metaCAS(m, withChanging(m))
+      }) ()
+
       i -= 1
     }
     true

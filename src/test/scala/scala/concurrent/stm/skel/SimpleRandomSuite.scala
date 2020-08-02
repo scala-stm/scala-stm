@@ -3,16 +3,16 @@
 package scala.concurrent.stm
 package skel
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class SimpleRandomSuite extends FunSuite {
+class SimpleRandomSuite extends AnyFunSuite {
 
   test("nextInt") {
     val f = new SimpleRandom
     var s = 0
     for (_ <- 0 until 100000) {
-      s |= SimpleRandom.nextInt
-      s |= f.nextInt
+      s |= SimpleRandom.nextInt()
+      s |= f.nextInt()
     }
     assert(s != 0)
   }
@@ -42,7 +42,7 @@ class SimpleRandomSuite extends FunSuite {
     val f1 = new SimpleRandom(100)
     val f2 = new SimpleRandom(100)
     for (_ <- 0 until 1000)
-      assert(f1.nextInt === f2.nextInt)
+      assert(f1.nextInt() === f2.nextInt())
   }
 
   test("global SimpleRandom distribution") {

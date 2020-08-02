@@ -3,11 +3,11 @@
 package scala.concurrent.stm
 package impl
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.reflect.ClassTag
 
-class RefFactorySuite extends FunSuite {
+class RefFactorySuite extends AnyFunSuite {
 
   private case class Fact(expected: String) extends skel.StubSTMImpl with RefFactory {
 

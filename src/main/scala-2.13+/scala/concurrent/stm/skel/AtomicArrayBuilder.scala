@@ -93,7 +93,7 @@ object AtomicArrayBuilder {
   class ofByte extends IntBacked[Byte] {
     def addOne(elem: Byte): this.type = {
       ensureSpace()
-      elems(size) = elem
+      elems(size) = elem.toInt
       size += 1
       this
     }
@@ -107,7 +107,7 @@ object AtomicArrayBuilder {
   class ofShort extends IntBacked[Short] {
     def addOne(elem: Short): this.type = {
       ensureSpace()
-      elems(size) = elem
+      elems(size) = elem.toInt
       size += 1
       this
     }
@@ -121,7 +121,7 @@ object AtomicArrayBuilder {
   class ofChar extends IntBacked[Char] {
     def addOne(elem: Char): this.type = {
       ensureSpace()
-      elems(size) = elem
+      elems(size) = elem.toInt
       size += 1
       this
     }

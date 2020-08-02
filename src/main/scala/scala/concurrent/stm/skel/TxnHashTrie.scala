@@ -9,7 +9,7 @@ import scala.reflect.ClassTag
 /** `TxnHashTrie` implements a transactional mutable hash trie using Ref-s,
  *  with lazy cloning to allow efficient snapshots.  Fundamental operations are
  *  provided for hash tries representing either sets or maps, both of which are
- *  represented as a Ref.View[Node[A, B]].  If the initial empty leaf is
+ *  represented as a `Ref.View[Node[A, B]]`.  If the initial empty leaf is
  *  `emptySetValue` then no values can be stored in the hash trie, and
  *  operations that take or return values will expect and produce null.
  *
@@ -67,7 +67,7 @@ private[skel] object TxnHashTrie {
   final class Leaf[A, B](val hashes: Array[Int],
                          val kvs: Array[AnyRef]) extends Node[A, B] with BuildingNode[A, B] {
 
-    def endBuild = this
+    def endBuild: Node[A, B] = this
 
     def cappedSize(cap: Int): Int = hashes.length
     def txnIsEmpty(implicit txn: InTxn): Boolean = hashes.length == 0
@@ -277,19 +277,19 @@ private[skel] object TxnHashTrie {
     def keyIterator: Iterator[A] = new Iterator[A] {
       var pos = 0
       def hasNext: Boolean = pos < hashes.length
-      def next: A = { val z = getKey(pos) ; pos += 1 ; z }
+      def next(): A = { val z = getKey(pos) ; pos += 1 ; z }
     }
 
     def valueIterator: Iterator[B] = new Iterator[B] {
       var pos = 0
       def hasNext: Boolean = pos < hashes.length
-      def next: B = { val z = getValue(pos) ; pos += 1 ; z }
+      def next(): B = { val z = getValue(pos) ; pos += 1 ; z }
     }
 
     def mapIterator: Iterator[(A, B)] = new Iterator[(A,B)] {
       var pos = 0
       def hasNext: Boolean = pos < hashes.length
-      def next: (A, B) = { val z = getKeyValue(pos) ; pos += 1 ; z }
+      def next(): (A, B) = { val z = getKeyValue(pos) ; pos += 1 ; z }
     }
   }
 
@@ -391,8 +391,8 @@ private[skel] object TxnHashTrie {
 
       def hasNext: Boolean = iter != null && iter.hasNext
 
-      def next: Z = {
-        val z = iter.next
+      def next(): Z = {
+        val z = iter.next()
         if (!iter.hasNext)
           advance()
         z

@@ -2,11 +2,12 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
 import java.util.concurrent.CountDownLatch
 
+import org.scalatest.funsuite.AnyFunSuite
 
-class TxnSuite extends FunSuite {
+
+class TxnSuite extends AnyFunSuite {
 
   test("empty transaction") {
     atomic { implicit t =>
@@ -201,10 +202,10 @@ class TxnSuite extends FunSuite {
   private def oneOfExpect(refs: Array[Ref[Boolean]], which: Int, sleeps: Array[Int]): Unit = {
     val result = Ref(-1)
     atomic.oneOf(
-        { t: InTxn => implicit val txn: InTxn = t; result() = 0 ; if (!refs(0)()) retry },
-        { t: InTxn => implicit val txn: InTxn = t; if (refs(1)()) result() = 1 else retry },
-        { t: InTxn => implicit val txn: InTxn = t; if (refs(2)()) result() = 2 else retry },
-        { t: InTxn => implicit val txn: InTxn = t; sleeps(0) += 1 ; retry }
+        { (t: InTxn) => implicit val txn: InTxn = t; result() = 0 ; if (!refs(0)()) retry },
+        { (t: InTxn) => implicit val txn: InTxn = t; if (refs(1)()) result() = 1 else retry },
+        { (t: InTxn) => implicit val txn: InTxn = t; if (refs(2)()) result() = 2 else retry },
+        { (t: InTxn) => implicit val txn: InTxn = t; sleeps(0) += 1 ; retry }
       )
     refs(which).single() = false
     assert(result.single.get === which)

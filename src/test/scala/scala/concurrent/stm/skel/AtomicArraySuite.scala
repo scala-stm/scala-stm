@@ -3,11 +3,11 @@
 package scala.concurrent.stm
 package skel
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.reflect.ClassTag
 
-class AtomicArraySuite extends FunSuite {
+class AtomicArraySuite extends AnyFunSuite {
 
   test("Unit") {
     runIsolatedTest(List((), (), ()))

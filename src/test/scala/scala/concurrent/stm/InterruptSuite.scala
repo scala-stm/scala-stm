@@ -2,12 +2,15 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.{Tag, FunSuite}
-import skel.SimpleRandom
 import java.util.concurrent.atomic.AtomicInteger
 
+import org.scalatest.Tag
+import org.scalatest.funsuite.AnyFunSuite
+
+import scala.concurrent.stm.skel.SimpleRandom
+
 /** Verifies that blocking STM operations can be interrupted. */
-class InterruptSuite extends FunSuite {
+class InterruptSuite extends AnyFunSuite {
 
 
   test("txn retry arriving interrupt") {

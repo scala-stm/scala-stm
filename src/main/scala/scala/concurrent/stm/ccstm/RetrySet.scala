@@ -69,12 +69,12 @@ private[ccstm] class RetrySet(val size: Int,
       if (!event.tryAwaitUntil(nanoDeadline))
         false // timed out
       else
-        changed || blockingAttemptAwait(nanoDeadline) // event fired
+        changed || blockingAttemptAwait(nanoDeadline, event, i) // event fired
     } else {
       // still building the event
       val h = handles(i)
       if (!event.addSource(h))
-        changed || blockingAttemptAwait(nanoDeadline) // event fired
+        changed || blockingAttemptAwait(nanoDeadline, event, i) // event fired
       else if (!addPendingWakeup(h, versions(i)))
         true // direct evidence of change
       else

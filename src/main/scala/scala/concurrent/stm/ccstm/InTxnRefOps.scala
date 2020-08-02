@@ -71,7 +71,7 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
 
     var m0 = 0L
     var value: T = null.asInstanceOf[T]
-    do {
+    while ({
       m0 = m1
       while (changing(m0)) {
         weakAwaitUnowned(handle, m0)
@@ -80,7 +80,9 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
       revalidateIfRequired(version(m0))
       value = handle.data
       m1 = handle.meta
-    } while (changingAndVersion(m0) != changingAndVersion(m1))
+
+      changingAndVersion(m0) != changingAndVersion(m1)
+    }) ()
 
     // Stable read.  The second read of handle.meta is required for
     // opacity, and it also enables the read-only commit optimization.
@@ -210,7 +212,7 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
       true
     } else {
       var m0 = 0L
-      do {
+      while ({
         m0 = m1
         while (changing(m0)) {
           if (status != Active) {
@@ -231,7 +233,10 @@ private[ccstm] abstract class InTxnRefOps extends AccessHistory with AbstractInT
         }
         v = handle.data
         m1 = handle.meta
-      } while (changingAndVersion(m0) != changingAndVersion(m1))
+
+        changingAndVersion(m0) != changingAndVersion(m1)
+      }) ()
+
       false
     }
 

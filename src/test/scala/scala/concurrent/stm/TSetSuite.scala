@@ -2,13 +2,13 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
-import scala.util.Random
+import org.scalatest.funsuite.AnyFunSuite
+
 import scala.collection.mutable
+import scala.concurrent.stm.compat._  // used
+import scala.util.Random
 
-import scala.concurrent.stm.compat._
-
-class TSetSuite extends FunSuite {
+class TSetSuite extends AnyFunSuite {
 
   test("number equality trickiness") {
     assert(TSet(10L).single contains 10)
@@ -140,7 +140,7 @@ class TSetSuite extends FunSuite {
       } else if (pct < 35) {
         assert(base.add(k) === mut.add(k))
       } else if (pct < 40) {
-        val v = rand.nextBoolean
+        val v = rand.nextBoolean()
         base(k) = v
         mut(k) = v
       } else if (pct < 55) {
@@ -148,7 +148,7 @@ class TSetSuite extends FunSuite {
       } else if (pct < 60) {
         for (_ <- 0 until (i / (total / 20))) {
           if (base.nonEmpty) {
-            val k1 = base.iterator.next
+            val k1 = base.iterator.next()
             assert(base.remove(k1) === mut.remove(k1))
           }
         }
@@ -209,7 +209,7 @@ class TSetSuite extends FunSuite {
       } else if (pct < 135) {
         assert(base.add(k) === atomic { implicit txn => mut.tset.add(k) })
       } else if (pct < 140) {
-        val v = rand.nextBoolean
+        val v = rand.nextBoolean()
         base(k) = v
         atomic { implicit txn => mut.tset(k) = v }
       } else if (pct < 155) {
@@ -217,7 +217,7 @@ class TSetSuite extends FunSuite {
       } else if (pct < 160) {
         for (_ <- 0 until (i / (total / 20))) {
           if (base.nonEmpty) {
-            val k1 = base.iterator.next
+            val k1 = base.iterator.next()
             assert(base.remove(k1) === atomic { implicit txn => mut.tset.remove(k1) })
           }
         }
@@ -281,7 +281,7 @@ class TSetSuite extends FunSuite {
         assert(b.iterator.toSet === s.iterator.toSet)
         while (b.nonEmpty) {
           if (rand.nextInt(100) < 75) {
-            val k = b.iterator.next
+            val k = b.iterator.next()
             assert(b(k) === s(k))
             b -= k
             s -= k
@@ -320,14 +320,14 @@ class TSetSuite extends FunSuite {
         b ++= mut
         b.clear()
         b ++= mut
-        mut = b.result
+        mut = b.result()
       } else if (pct < 223) {
         mut = atomic { implicit txn =>
           val b = TSet.newBuilder[String]
           b ++= mut.tset
           b.clear()
           b ++= mut.tset
-          b.result
+          b.result()
         }.single
       }
     }

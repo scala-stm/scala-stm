@@ -30,7 +30,7 @@ private[skel] class HashTrieTSet[A] private (root0: Ref.View[TxnHashTrie.SetNode
 
   //// construction
 
-  override def empty: TSet.View[A] = new HashTrieTSet(Ref(TxnHashTrie.emptySetNode[A]).single)  
+  override def empty: TSet.View[A] = new HashTrieTSet(Ref(TxnHashTrie.emptySetNode[A]).single)
   override def clone: HashTrieTSet[A] = new HashTrieTSet(cloneRoot)
 
   //// TSet.View aggregates

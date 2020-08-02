@@ -4,11 +4,11 @@ package scala.concurrent.stm
 
 import java.util.concurrent.CountDownLatch
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.{Symbol => Sym}
 
-class CallbackSuite extends FunSuite {
+class CallbackSuite extends AnyFunSuite {
 
   class UserException extends Exception
 

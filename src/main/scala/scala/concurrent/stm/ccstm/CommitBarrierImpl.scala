@@ -36,7 +36,7 @@ private[ccstm] class CommitBarrierImpl(timeoutNanos: Long) extends CommitBarrier
     @volatile private var state: State = Active
     @volatile private var target: NestingLevel = null
 
-    def commitBarrier = CommitBarrierImpl.this
+    override def commitBarrier: CommitBarrierImpl = CommitBarrierImpl.this
 
     def atomic[Z](body: InTxn => Z): Either[CancelCause, Z] = {
       try {

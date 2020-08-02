@@ -41,7 +41,7 @@ object WakeupManager {
   def blocking[A](body: => A): A = {
     if (blockingMethod != null) {
       try {
-        blockingMethod.invoke(null, (body _).asInstanceOf[Function0[_]]).asInstanceOf[A]
+        blockingMethod.invoke(null, (() => body)).asInstanceOf[A]
       } catch {
         case x: InvocationTargetException => throw x.getTargetException
       }
@@ -80,9 +80,11 @@ private[ccstm] final class WakeupManager(numChannels: Int, numSources: Int) {
   def prepareToTrigger(handle: Handle[_]): Long = {
     val i = hash(handle.base, handle.metaOffset) & (numSources - 1)
     var z = 0L
-    do {
+    while ({
       z = pending.get(i)
-    } while (z != 0L && !pending.compareAndSet(i, z, 0L))
+      z != 0L && !pending.compareAndSet(i, z, 0L)
+    }) ()
+
     z
   }
 

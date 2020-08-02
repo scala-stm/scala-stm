@@ -4,10 +4,11 @@ package scala.concurrent.stm
 
 import java.util.concurrent.CyclicBarrier
 
-import org.scalatest.{FunSuite, Tag}
+import org.scalatest.Tag
+import org.scalatest.funsuite.AnyFunSuite
 
 
-class HistogramSuite extends FunSuite {
+class HistogramSuite extends AnyFunSuite {
 
   for ((opsPerTest, name, slow) <- List((10000, "10K", false),
                                         (1000000, "1M", true))) {

@@ -2,11 +2,12 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
 import java.util.concurrent.CountDownLatch
 
+import org.scalatest.funsuite.AnyFunSuite
 
-class UnrecordedTxnSuite extends FunSuite {
+
+class UnrecordedTxnSuite extends AnyFunSuite {
 
   test("fixed unrecorded txn") {
     val z = atomic.unrecorded { implicit txn => "foo" }
