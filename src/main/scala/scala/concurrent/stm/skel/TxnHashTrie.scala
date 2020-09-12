@@ -3,7 +3,7 @@
 package scala.concurrent.stm
 package skel
 
-import annotation.tailrec
+import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
 /** `TxnHashTrie` implements a transactional mutable hash trie using Ref-s,
@@ -207,7 +207,8 @@ private[skel] object TxnHashTrie {
       val refs = new Array[Ref.View[Node[A, B]]](BF)
       var i = 0
       while (i < BF) {
-        refs(i) = Ref(children(i))(cm).single
+        implicit val icm: ClassTag[Node[A, B]] = cm
+        refs(i) = Ref(children(i)).single
         i += 1
       }
       new Branch[A, B](gen, false, refs)      

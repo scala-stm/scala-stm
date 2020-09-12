@@ -3,11 +3,10 @@
 package scala.concurrent.stm
 package skel
 
-import scala.concurrent.stm.compat._
-
 import java.util.concurrent.TimeUnit
 
 import scala.collection.mutable
+import scala.concurrent.stm.compat._
 import scala.reflect.ClassTag
 
 class StubSTMImpl extends impl.STMImpl {

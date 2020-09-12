@@ -2,8 +2,9 @@
 
 package scala.concurrent.stm.ccstm
 
-import annotation.tailrec
 import java.util.concurrent.TimeUnit
+
+import scala.annotation.tailrec
 
 /** A retry set representation. */
 private[ccstm] class RetrySet(val size: Int,

@@ -3,9 +3,9 @@
 package scala.concurrent.stm.ccstm
 
 
-import java.util.concurrent.atomic.{AtomicReferenceArray, AtomicLongArray}
-import java.util.concurrent.locks.AbstractQueuedSynchronizer
 import java.lang.reflect.{InvocationTargetException, Method}
+import java.util.concurrent.atomic.{AtomicLongArray, AtomicReferenceArray}
+import java.util.concurrent.locks.AbstractQueuedSynchronizer
 
 object WakeupManager {
   trait Event {

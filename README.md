@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/scala-stm/scala-stm.svg?branch=master)](https://travis-ci.org/scala-stm/scala-stm)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scala-stm/scala-stm_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scala-stm/scala-stm_2.12)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scala-stm/scala-stm_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scala-stm/scala-stm_2.13)
 
 # ScalaSTM
  
@@ -8,13 +8,13 @@ inspired by the STMs in Haskell and Clojure. It was written by Nathan Bronson
 and the Scala STM Expert Group, and it is published under a
 BSD 3-Clause License.
 
-ScalaSTM is available for Scala 2.13, 2.12, and 2.11.
+ScalaSTM is available for Scala 2.13, 2.12, 2.11, and Dotty.
 It is also possible to use the library from Java, see `JavaAPITests`.
 
 You can use it in your sbt build file as follows:
 
 ```scala
-libraryDependencies += "org.scala-stm" %% "scala-stm" % "0.9.1"
+libraryDependencies += "org.scala-stm" %% "scala-stm" % "0.10.0"
 ```
 
 Or in Maven:
@@ -22,8 +22,8 @@ Or in Maven:
 ```
 <dependency>
   <groupId>org.scala-stm</groupId>
-  <artifactId>scala-stm_2.12</artifactId>
-  <version>0.9.1</version>
+  <artifactId>scala-stm_2.13</artifactId>
+  <version>0.10.0</version>
 </dependency>
 ```
 

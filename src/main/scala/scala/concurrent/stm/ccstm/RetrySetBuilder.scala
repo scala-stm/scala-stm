@@ -2,7 +2,7 @@
 
 package scala.concurrent.stm.ccstm
 
-import annotation.tailrec
+import scala.annotation.tailrec
 
 
 /** This is basically a specialized builder for a map from `Handle` to

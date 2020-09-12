@@ -3,11 +3,10 @@
 package scala.concurrent.stm
 package ccstm
 
-import scala.concurrent.stm.compat._
-
 import java.util.concurrent.atomic.AtomicLongArray
 
 import scala.collection.immutable
+import scala.concurrent.stm.compat._
 import scala.concurrent.stm.skel.AtomicArray
 import scala.reflect.ClassTag
 

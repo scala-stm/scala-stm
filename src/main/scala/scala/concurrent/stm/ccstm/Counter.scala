@@ -3,6 +3,7 @@
 package scala.concurrent.stm.ccstm
 
 import java.util.concurrent.atomic.AtomicLong
+
 import scala.annotation.tailrec
 
 /** A counter with a linearizable increment operator and adaptive contention
