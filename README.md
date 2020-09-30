@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/scala-stm/scala-stm.svg?branch=master)](https://travis-ci.org/scala-stm/scala-stm)
+[![Build Status](https://travis-ci.org/scala-stm/scala-stm.svg?branch=main)](https://travis-ci.org/scala-stm/scala-stm)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scala-stm/scala-stm_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scala-stm/scala-stm_2.13)
 
 # ScalaSTM

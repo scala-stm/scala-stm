@@ -1,4 +1,4 @@
-def projectVersion  = "0.10.0-SNAPSHOT"
+def projectVersion  = "0.10.0"
 def mimaVersion     = "0.10.0"
 
 lazy val root = project.in(file("."))
