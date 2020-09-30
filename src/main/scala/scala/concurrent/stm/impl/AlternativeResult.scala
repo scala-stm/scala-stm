@@ -3,7 +3,7 @@
 package scala.concurrent.stm
 package impl
 
-import util.control.ControlThrowable
+import scala.util.control.ControlThrowable
 
 /** See `PendingAtomicBlock` */
 private[stm] case class AlternativeResult(value: Any) extends ControlThrowable

@@ -84,7 +84,7 @@ private[ccstm] case class CCSTMExecutor private (
   def isControlFlow(x: Throwable): Boolean = controlFlowTest(x)
   
   def withControlFlowRecognizer(pf: PartialFunction[Throwable, Boolean]): TxnExecutor = {
-    copy(controlFlowTest = { x: Throwable => if (pf.isDefinedAt(x)) pf(x) else controlFlowTest(x) })
+    copy(controlFlowTest = { (x: Throwable) => if (pf.isDefinedAt(x)) pf(x) else controlFlowTest(x) })
   }
 
   def withPostDecisionFailureHandler(handler: (Txn.Status, Throwable) => Unit): TxnExecutor = {

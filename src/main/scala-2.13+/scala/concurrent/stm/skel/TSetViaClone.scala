@@ -27,7 +27,7 @@ private[stm] trait TSetViaClone[A] extends TSet.View[A] with TSet[A] {
   import TSetViaClone._
 
   // Implementations may be able to do better.
-  override def snapshot: immutable.Set[A] = new FrozenMutableSet(clone())
+  override def snapshot: immutable.Set[A] = new FrozenMutableSet(clone)
 
   def tset: TSet[A] = this
   def single: TSet.View[A] = this

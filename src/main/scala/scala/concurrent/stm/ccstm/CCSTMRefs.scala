@@ -6,7 +6,7 @@ package ccstm
 import java.util.concurrent.atomic.AtomicLongFieldUpdater
 
 import scala.collection.mutable
-import scala.concurrent.stm.compat._
+import scala.concurrent.stm.compat._  // used
 import scala.reflect.ClassTag
 
 private[ccstm] object CCSTMRefs {

@@ -3,7 +3,8 @@
 package scala.concurrent.stm
 
 import java.util.concurrent.TimeUnit
-import concurrent.stm.Txn.RollbackCause
+
+import scala.concurrent.stm.Txn.RollbackCause
 
 
 /** `object TxnExecutor` manages the system-wide default `TxnExecutor`. */

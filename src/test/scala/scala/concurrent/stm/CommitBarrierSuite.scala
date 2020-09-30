@@ -4,13 +4,13 @@ package scala.concurrent.stm
 
 import java.util.concurrent.{LinkedTransferQueue, TimeUnit}
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.concurrent.stm.skel.SimpleRandom
 import scala.util.control.Breaks
 import scala.{Symbol => Sym}
 
-class CommitBarrierSuite extends FunSuite {
+class CommitBarrierSuite extends AnyFunSuite {
 
   test("single member commit") {
     val x = Ref(0)
@@ -268,7 +268,7 @@ class CommitBarrierSuite extends FunSuite {
         }.start()
         cb.addMember().atomic { implicit txn =>
           ref() = ref() + 1
-          b.break
+          b.break()
         }
       }
     }

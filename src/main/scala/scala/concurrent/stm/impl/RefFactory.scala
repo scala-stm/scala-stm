@@ -3,9 +3,8 @@
 package scala.concurrent.stm
 package impl
 
-import scala.concurrent.stm.compat._
-
 import scala.collection.mutable
+import scala.concurrent.stm.compat._
 import scala.reflect.ClassTag
 
 /** `RefFactory` is responsible for creating concrete `Ref` instances. */ 

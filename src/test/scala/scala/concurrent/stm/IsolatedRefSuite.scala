@@ -2,14 +2,15 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
 import java.util.concurrent.TimeUnit
+
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.reflect.ClassTag
 
 
 /** Performs single-threaded tests of `Ref`. */
-class IsolatedRefSuite extends FunSuite {
+class IsolatedRefSuite extends AnyFunSuite {
 
   // Ref factories produces Ref from an initial value
 
@@ -114,14 +115,14 @@ class IsolatedRefSuite extends FunSuite {
 
   object SingleAccess extends ViewFactory {
     def apply[A](ref: Ref[A], innerDepth: Int): Ref.View[A] = new TestingView[A](innerDepth, ref) {
-      protected def view: Ref.View[A] = ref.single
+      protected def view: Ref.View[A] = this.ref.single
     }
     override def toString = "Single"
   }
 
   object RefAccess extends ViewFactory {
     def apply[A](ref: Ref[A], innerDepth: Int): Ref.View[A] = new TestingView[A](innerDepth, ref) {
-      protected val view = new DynamicView[A](ref)
+      protected val view = new DynamicView[A](this.ref)
     }
     override def toString = "Ref"
   }
@@ -149,9 +150,9 @@ class IsolatedRefSuite extends FunSuite {
         val current = "outer=" + outerLevels + ", inner=" + innerLevels + ", " + refFactory + ", " + viewFactory
         try {
           val ref = refFactory(v0)
-          def getView = viewFactory(ref, innerLevels)
+          def getView: Ref.View[A] = viewFactory(ref, innerLevels)
           nest(outerLevels) {
-            block(getView _)
+            block(() => getView)
           }
         } catch {
           case x: Throwable =>

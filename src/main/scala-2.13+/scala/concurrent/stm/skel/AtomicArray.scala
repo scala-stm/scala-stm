@@ -156,10 +156,10 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
 
     def length: Int = elems.length
     def apply(index: Int): Byte = elems.get(index).toByte
-    def update(index: Int, elem: Byte): Unit = elems.set(index, elem)
-    def swap(index: Int, elem: Byte): Byte = elems.getAndSet(index, elem).toByte
+    def update(index: Int, elem: Byte): Unit = elems.set(index, elem.toInt)
+    def swap(index: Int, elem: Byte): Byte = elems.getAndSet(index, elem.toInt).toByte
     def compareAndSet(index: Int, expected: Byte, elem: Byte): Boolean =
-      elems.compareAndSet(index, expected, elem)
+      elems.compareAndSet(index, expected.toInt, elem.toInt)
     override def newSpecificBuilder = new AtomicArrayBuilder.ofByte
   }
 
@@ -168,10 +168,10 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
 
     def length: Int = elems.length
     def apply(index: Int): Short = elems.get(index).toShort
-    def update(index: Int, elem: Short): Unit = elems.set(index, elem)
-    def swap(index: Int, elem: Short): Short = elems.getAndSet(index, elem).toShort
+    def update(index: Int, elem: Short): Unit = elems.set(index, elem.toInt)
+    def swap(index: Int, elem: Short): Short = elems.getAndSet(index, elem.toInt).toShort
     def compareAndSet(index: Int, expected: Short, elem: Short): Boolean =
-      elems.compareAndSet(index, expected, elem)
+      elems.compareAndSet(index, expected.toInt, elem.toInt)
     override def newSpecificBuilder = new AtomicArrayBuilder.ofShort
   }
 
@@ -180,10 +180,10 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
 
     def length: Int = elems.length
     def apply(index: Int): Char = elems.get(index).toChar
-    def update(index: Int, elem: Char): Unit = elems.set(index, elem)
-    def swap(index: Int, elem: Char): Char = elems.getAndSet(index, elem).toChar
+    def update(index: Int, elem: Char): Unit = elems.set(index, elem.toInt)
+    def swap(index: Int, elem: Char): Char = elems.getAndSet(index, elem.toInt).toChar
     def compareAndSet(index: Int, expected: Char, elem: Char): Boolean =
-      elems.compareAndSet(index, expected, elem)
+      elems.compareAndSet(index, expected.toInt, elem.toInt)
     override def newSpecificBuilder = new AtomicArrayBuilder.ofChar
   }
 

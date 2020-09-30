@@ -3,9 +3,10 @@
 package scala.concurrent.stm
 package ccstm
 
-import scala.annotation.tailrec
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater
-import skel.{AbstractNestingLevel, RollbackError}
+
+import scala.annotation.tailrec
+import scala.concurrent.stm.skel.{AbstractNestingLevel, RollbackError}
 
 private[ccstm] object TxnLevelImpl {
 

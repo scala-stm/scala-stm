@@ -3,13 +3,14 @@
 package scala.concurrent.stm.ccstm
 
 import java.util.concurrent.atomic.AtomicLong
+
 import scala.annotation.tailrec
 
 /** A counter with a linearizable increment operator and adaptive contention
  *  avoidance.  Reading the counter with `apply()` is not linearizable (unless
  *  the only delta passed to += is 1) and is not optimized.
  */
-private[ccstm] class Counter extends {
+private[ccstm] class Counter {
   private final val MaxStripes = 64
 
   // this doesn't need to be volatile because when we grow it we retain all of

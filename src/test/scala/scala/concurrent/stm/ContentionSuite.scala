@@ -2,10 +2,11 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+
 import skel.SimpleRandom
 
-class ContentionSuite extends FunSuite {
+class ContentionSuite extends AnyFunSuite {
   // probability that two txns of size M touch the same element out of N
   // (M substantially less than N) is about 1 - (1 - M/N)^M
 

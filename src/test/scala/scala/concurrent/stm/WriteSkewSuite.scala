@@ -2,10 +2,10 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 
-class WriteSkewSuite extends FunSuite {
+class WriteSkewSuite extends AnyFunSuite {
   val IncrCount = 1000000
 
   test("write skew test 1K") { runTest(1000) }

@@ -2,7 +2,7 @@
 
 package scala.concurrent.stm.ccstm
 
-import collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 
 private[ccstm] object Stats {
 

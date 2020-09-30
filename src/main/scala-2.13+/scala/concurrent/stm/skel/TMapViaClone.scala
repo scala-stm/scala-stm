@@ -36,7 +36,7 @@ private[stm] trait TMapViaClone[A, B] extends TMap.View[A, B] with TMap[A, B] {
   import TMapViaClone._
 
   // Implementations may be able to do better.
-  override def snapshot: immutable.Map[A, B] = new FrozenMutableMap(clone())
+  override def snapshot: immutable.Map[A, B] = new FrozenMutableMap(clone)
 
   def tmap: TMap[A, B] = this
   def single: TMap.View[A, B] = this

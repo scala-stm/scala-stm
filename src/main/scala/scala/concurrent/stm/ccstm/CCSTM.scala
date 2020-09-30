@@ -130,13 +130,15 @@ private[ccstm] object CCSTM extends GV6 {
     // couple of extra CAS, so it is not useful for us to do a big spin with
     // yields.
     var spins = 0
-    do {
+    while ({
       val m = handle.meta
       if (ownerAndVersion(m) != ownerAndVersion(m0))
         return // no steal needed
 
       spins += 1
-    } while (spins < StealSpinCount)
+
+      spins < StealSpinCount
+    }) ()
 
     // If owningRoot has been doomed it might be a while before it releases its
     // lock on the handle.  Slot numbers are reused, however, so we have to
@@ -245,10 +247,12 @@ private[ccstm] object CCSTM extends GV6 {
         // we've already got the beginLookup, so no need to do a standalone
         // stealHandle
         var m = 0L
-        do {
+        while ({
           m = handle.meta
           assert(ownerAndVersion(m) != ownerAndVersion(m0) || owningRoot.status.isInstanceOf[Txn.RolledBack])
-        } while (ownerAndVersion(m) == ownerAndVersion(m0) && !handle.metaCAS(m, withRollback(m)))
+
+          ownerAndVersion(m) == ownerAndVersion(m0) && !handle.metaCAS(m, withRollback(m))
+        }) ()
 
         // no longer locked, or steal succeeded
       }

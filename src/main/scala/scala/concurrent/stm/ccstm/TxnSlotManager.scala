@@ -21,7 +21,7 @@ private[ccstm] final class TxnSlotManager[T <: AnyRef](range: Int, reservedSlots
   assert(range >= reservedSlots + 16)
 
   private def nextSlot(tries: Int) = {
-    ((skel.SimpleRandom.nextInt << 4) | ((-tries >> 1) & 0xf)) & (range - 1)
+    ((skel.SimpleRandom.nextInt() << 4) | ((-tries >> 1) & 0xf)) & (range - 1)
   }
 
   /** CAS on the entries manages the actual acquisition.  Entries are either
@@ -66,9 +66,12 @@ private[ccstm] final class TxnSlotManager[T <: AnyRef](range: Int, reservedSlots
    */
   def beginLookup(slot: Int): T = {
     var e: AnyRef = null
-    do {
+    while ({
       e = slots.get(slot)
-    } while (e != null && !slots.compareAndSet(slot, e, locked(e)))
+
+      e != null && !slots.compareAndSet(slot, e, locked(e))
+    }) ()
+
     unwrap(e)
   }
 
@@ -84,9 +87,11 @@ private[ccstm] final class TxnSlotManager[T <: AnyRef](range: Int, reservedSlots
 
   def release(slot: Int): Unit = {
     var e: AnyRef = null
-    do {
+    while ({
       e = slots.get(slot)
-    } while (!slots.compareAndSet(slot, e, unlocked(e)))
+
+      !slots.compareAndSet(slot, e, unlocked(e))
+    }) ()
   }
 
   private def unlocked(e: AnyRef): AnyRef = {

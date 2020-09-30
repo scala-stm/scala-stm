@@ -4,7 +4,7 @@ package scala.concurrent.stm
 
 import java.util.concurrent.CountDownLatch
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 
 /** Tests of the relaxed validation methods `getWith` and `relaxedGet` in
@@ -12,7 +12,7 @@ import org.scalatest.FunSuite
  *  `IsolatedRefSuite` and more multi-threaded tests are embedded in
  *  `FlipperSuite`.
  */
-class RelaxedValidationSuite extends FunSuite {
+class RelaxedValidationSuite extends AnyFunSuite {
 
   test("self-write vs getWith") {
     val x = Ref(0)

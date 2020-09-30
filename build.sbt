@@ -1,5 +1,5 @@
-def projectVersion  = "0.9.1"
-def mimaVersion     = "0.9"
+def projectVersion  = "0.10.0-SNAPSHOT"
+def mimaVersion     = "0.10.0"
 
 lazy val root = project.in(file("."))
   .settings(commonSettings)
@@ -13,12 +13,20 @@ lazy val root = project.in(file("."))
 // basic settings //
 ////////////////////
 
+lazy val deps = new {
+  val test = new {
+    val junit         = "4.12"
+    val scalaTest     = "3.2.2"
+    val scalaTestPlus = s"$scalaTest.0"
+  }
+}
+
 lazy val commonSettings = Seq(
   organization       := "org.scala-stm",
   version            := projectVersion,
   description        := "A library for Software Transactional Memory in Scala",
-  scalaVersion       := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0"),
+  scalaVersion       := "2.13.3",
+  crossScalaVersions := Seq("0.27.0-RC1", "2.13.3", "2.12.12", "2.11.12"),
   scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature", "-Xsource:2.13"),
   scalacOptions     ++= {
     if (scalaVersion.value.startsWith("2.11")) Nil else Seq("-Xlint:-unused,_")
@@ -27,21 +35,21 @@ lazy val commonSettings = Seq(
     val javaVersion = if (scalaVersion.value.startsWith("2.11")) "1.6" else "1.8"
     Seq("-source", javaVersion, "-target", javaVersion)
   },
-  libraryDependencies += {
-    "org.scalatest" %% "scalatest" % "3.0.8" % Test,
-  },
   libraryDependencies ++= Seq(
-    "junit"         % "junit"       % "4.12"      % Test
+    "org.scalatest"     %% "scalatest"  % deps.test.scalaTest     % Test,
+    "org.scalatestplus" %% "junit-4-12" % deps.test.scalaTestPlus % Test,
+    "junit"             % "junit"       % deps.test.junit         % Test,
   ),
   // skip exhaustive tests
   testOptions += Tests.Argument("-l", "slow"),
   // test of TxnExecutor.transformDefault must be run by itself
   parallelExecution in Test := false,
-  unmanagedSourceDirectories in Compile += {
+  unmanagedSourceDirectories in Compile ++= {
     val sourceDir = (sourceDirectory in Compile).value
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, n)) if n >= 13 => sourceDir / "scala-2.13+"
-      case _                       => sourceDir / "scala-2.13-"
+      case Some((2, n)) if n >= 13  => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14-")
+      case Some((0, _))             => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14+")  // Dotty
+      case _                        => Seq(sourceDir / "scala-2.13-", sourceDir / "scala-2.14-")
     }
   }
 )

@@ -2,14 +2,14 @@
 
 package scala.concurrent.stm
 
-import scala.concurrent.stm.compat._
+import org.scalatest.funsuite.AnyFunSuite
 
-import org.scalatest.FunSuite
-import scala.util.Random
 import scala.collection.mutable
-import skel.SimpleRandom
+import scala.concurrent.stm.compat._  // used
+import scala.concurrent.stm.skel.SimpleRandom
+import scala.util.Random
 
-class TMapSuite extends FunSuite {
+class TMapSuite extends AnyFunSuite {
 
   private def value(k: Int) = "x" + k
   private def kvRange(b: Int, e: Int) = (b until e) map { i => i -> value(i) }
@@ -172,13 +172,13 @@ class TMapSuite extends FunSuite {
         assert(base eq (base += (k -> v)))
         assert(mut eq (mut += (k -> v)))
       } else if (pct < 80) {
-        val kv2 = nextKey -> nextValue
-        val kv3 = nextKey -> nextValue
+        val kv2 = nextKey() -> nextValue()
+        val kv3 = nextKey() -> nextValue()
         assert(base eq (base += (k -> v, kv2, kv3)))
         assert(mut eq (mut += (k -> v, kv2, kv3)))
       } else if (pct < 82) {
-        val kv2 = nextKey -> nextValue
-        val kv3 = nextKey -> nextValue
+        val kv2 = nextKey() -> nextValue()
+        val kv3 = nextKey() -> nextValue()
         assert(base eq (base ++= Array(k -> v, kv2, kv3)))
         assert(mut  eq (mut  ++= Array(k -> v, kv2, kv3)))
       } else if (pct < 83) {
@@ -244,13 +244,13 @@ class TMapSuite extends FunSuite {
         assert(base eq (base += (k -> v)))
         assert(mut.tmap eq atomic { implicit t => mut.tmap += (k -> v) })
       } else if (pct < 180) {
-        val kv2 = nextKey -> nextValue
-        val kv3 = nextKey -> nextValue
+        val kv2 = nextKey() -> nextValue()
+        val kv3 = nextKey() -> nextValue()
         assert(base eq (base += (k -> v, kv2, kv3)))
         assert(mut.tmap eq atomic { implicit t => mut.tmap ++= List(k -> v, kv2,  kv3) })
       } else if (pct < 182) {
-        val kv2 = nextKey -> nextValue
-        val kv3 = nextKey -> nextValue
+        val kv2 = nextKey() -> nextValue()
+        val kv3 = nextKey() -> nextValue()
         assert(base eq (base ++= Array(k -> v, kv2, kv3)))
         assert(mut.tmap eq atomic { implicit t => mut.tmap ++= Array(k -> v, kv2, kv3) })
       } else if (pct < 183) {
@@ -273,7 +273,7 @@ class TMapSuite extends FunSuite {
       } else if (pct < 195) {
         mut = atomic { implicit t => TMap(mut.tmap.toSeq: _*).single }
       } else if (pct < 196) {
-        mut = atomic { implicit t => TMap.empty[String, Int] ++= mut.tmap }.single
+        mut = (atomic { implicit t => TMap.empty[String, Int] ++= mut.tmap }).single
       } else if (pct < 197) {
         atomic { implicit t =>
           val m2 = mutable.Map.empty[String, Int]
@@ -298,13 +298,13 @@ class TMapSuite extends FunSuite {
             s -= k
             assert(b.size === s.size)
           } else {
-            val kv = nextKey -> nextValue
+            val kv = nextKey() -> nextValue()
             b += kv
             s += kv
           }
         }
         assert(b.isEmpty === s.isEmpty)
-        val kv = nextKey -> nextValue
+        val kv = nextKey() -> nextValue()
         b += kv
         s += kv
         assert(b === s)
@@ -353,13 +353,13 @@ class TMapSuite extends FunSuite {
         b ++= mut
         mut = b.result()
       } else if (pct < 233) {
-        mut = atomic { implicit txn =>
+        mut = (atomic { implicit txn =>
           val b = TMap.newBuilder[String, Int]
           b ++= mut.tmap
           b.clear()
           b ++= mut.tmap
           b.result()
-        }.single
+        }).single
       }
     }
   }

@@ -3,7 +3,7 @@
 package scala.concurrent.stm
 package skel
 
-import annotation.tailrec
+import scala.annotation.tailrec
 
 
 private[stm] class CallbackList[A] {

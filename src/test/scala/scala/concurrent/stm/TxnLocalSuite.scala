@@ -2,10 +2,10 @@
 
 package scala.concurrent.stm
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 
-class TxnLocalSuite extends FunSuite {
+class TxnLocalSuite extends AnyFunSuite {
   test("default initial value") {
     val tl = TxnLocal[String]()
     atomic { implicit txn =>

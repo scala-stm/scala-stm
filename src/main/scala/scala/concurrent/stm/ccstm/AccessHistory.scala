@@ -3,7 +3,7 @@
 package scala.concurrent.stm
 package ccstm
 
-import annotation.tailrec
+import scala.annotation.tailrec
 
 private[ccstm] object AccessHistory {
 

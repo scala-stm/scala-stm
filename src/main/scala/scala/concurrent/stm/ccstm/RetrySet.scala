@@ -2,8 +2,9 @@
 
 package scala.concurrent.stm.ccstm
 
-import annotation.tailrec
 import java.util.concurrent.TimeUnit
+
+import scala.annotation.tailrec
 
 /** A retry set representation. */
 private[ccstm] class RetrySet(val size: Int,
@@ -69,12 +70,12 @@ private[ccstm] class RetrySet(val size: Int,
       if (!event.tryAwaitUntil(nanoDeadline))
         false // timed out
       else
-        changed || blockingAttemptAwait(nanoDeadline) // event fired
+        changed || blockingAttemptAwait(nanoDeadline, event, i) // event fired
     } else {
       // still building the event
       val h = handles(i)
       if (!event.addSource(h))
-        changed || blockingAttemptAwait(nanoDeadline) // event fired
+        changed || blockingAttemptAwait(nanoDeadline, event, i) // event fired
       else if (!addPendingWakeup(h, versions(i)))
         true // direct evidence of change
       else

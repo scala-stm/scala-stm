@@ -102,7 +102,7 @@ private[ccstm] trait GV6 {
    */
   def freshCommitVersion(readVersion: Long): Long = {
     val cutoff = silentCommitCutoff
-    val install = cutoff == Int.MaxValue || silentCommitRand.nextInt <= cutoff
+    val install = cutoff == Int.MaxValue || silentCommitRand.nextInt() <= cutoff
 
     val gvSnap = globalVersion.get
     val result = (math.max(readVersion, gvSnap) + 1) | 1L

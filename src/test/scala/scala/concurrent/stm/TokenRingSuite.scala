@@ -4,7 +4,7 @@ package scala.concurrent.stm
 
 import java.util.concurrent.CyclicBarrier
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 
 /** This test uses the transactional retry mechanism to pass a token around a
@@ -13,7 +13,7 @@ import org.scalatest.FunSuite
  *
  *  @author Nathan Bronson
  */
-class TokenRingSuite extends FunSuite {
+class TokenRingSuite extends AnyFunSuite {
   test("small non-txn threesome") { tokenRing(3, 10000, false, false) }
   test("small txn threesome") { tokenRing(3, 1000, true, false) }
   test("small txn threesome reading via write") { tokenRing(3, 1000, true, true) }
