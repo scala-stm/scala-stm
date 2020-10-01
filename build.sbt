@@ -37,7 +37,7 @@ lazy val commonSettings = Seq(
   },
   libraryDependencies ++= Seq(
     "org.scalatest"     %% "scalatest"  % deps.test.scalaTest     % Test,
-    "org.scalatestplus" %% "junit-4-12" % deps.test.scalaTestPlus % Test,
+    "org.scalatestplus" %% "junit-4-13" % deps.test.scalaTestPlus % Test,
     "junit"             % "junit"       % deps.test.junit         % Test,
   ),
   // skip exhaustive tests
