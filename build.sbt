@@ -41,9 +41,9 @@ lazy val commonSettings = Seq(
     Seq("-source", javaVersion, "-target", javaVersion)
   },
   libraryDependencies ++= Seq(
-    "org.scalatest"     %% "scalatest"  % deps.test.scalaTest     % Test,
-    "org.scalatestplus" %% "junit-4-12" % deps.test.scalaTestPlus % Test,
-    "junit"             % "junit"       % deps.test.junit         % Test,
+    "org.scalatest"     %%% "scalatest"  % deps.test.scalaTest     % Test,
+    "org.scalatestplus" %%  "junit-4-12" % deps.test.scalaTestPlus % Test,
+    "junit"             %   "junit"      % deps.test.junit         % Test,
   ),
   // skip exhaustive tests
   testOptions += Tests.Argument("-l", "slow"),
@@ -54,8 +54,7 @@ lazy val commonSettings = Seq(
     val sourceDir   = file(
       sourceDir0.getPath.replace("/jvm/" , "/shared/").replace("/js/", "/shared/")
     )
-    val sv          = CrossVersion.partialVersion(scalaVersion.value)
-    println("sourceDir: " + sourceDir + ", sv: " + sv)
+    val sv = CrossVersion.partialVersion(scalaVersion.value)
     sv match {
       case Some((2, n)) if n >= 13  => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14-")
       case Some((0, _))             => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14+")  // Dotty
