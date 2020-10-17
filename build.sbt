@@ -1,12 +1,18 @@
-def projectVersion  = "0.10.0"
-def mimaVersion     = "0.10.0"
+def projectVersion  = "0.11.0-SNAPSHOT"
+def mimaVersion     = "0.11.0"
 
-lazy val root = project.in(file("."))
+lazy val root = crossProject(JSPlatform, JVMPlatform).in(file("."))
   .settings(commonSettings)
   .settings(publishSettings)
   .settings(
     name                  := "scala-stm",
     mimaPreviousArtifacts := Set(organization.value %% name.value % mimaVersion)
+  )
+  .jvmSettings(
+    crossScalaVersions := Seq("0.27.0-RC1", "2.13.3", "2.12.12", "2.11.12"),
+  )
+  .jsSettings(
+    crossScalaVersions := scalaVersion.value :: Nil,
   )
 
 ////////////////////
@@ -26,7 +32,6 @@ lazy val commonSettings = Seq(
   version            := projectVersion,
   description        := "A library for Software Transactional Memory in Scala",
   scalaVersion       := "2.13.3",
-  crossScalaVersions := Seq("0.27.0-RC1", "2.13.3", "2.12.12", "2.11.12"),
   scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature", "-Xsource:2.13"),
   scalacOptions     ++= {
     if (scalaVersion.value.startsWith("2.11")) Nil else Seq("-Xlint:-unused,_")
@@ -45,8 +50,13 @@ lazy val commonSettings = Seq(
   // test of TxnExecutor.transformDefault must be run by itself
   parallelExecution in Test := false,
   unmanagedSourceDirectories in Compile ++= {
-    val sourceDir = (sourceDirectory in Compile).value
-    CrossVersion.partialVersion(scalaVersion.value) match {
+    val sourceDir0  = (sourceDirectory in Compile).value
+    val sourceDir   = file(
+      sourceDir0.getPath.replace("/jvm/" , "/shared/").replace("/js/", "/shared/")
+    )
+    val sv          = CrossVersion.partialVersion(scalaVersion.value)
+    println("sourceDir: " + sourceDir + ", sv: " + sv)
+    sv match {
       case Some((2, n)) if n >= 13  => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14-")
       case Some((0, _))             => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14+")  // Dotty
       case _                        => Seq(sourceDir / "scala-2.13-", sourceDir / "scala-2.14-")

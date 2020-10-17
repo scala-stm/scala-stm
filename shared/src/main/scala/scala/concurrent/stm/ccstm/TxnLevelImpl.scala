@@ -51,7 +51,7 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
                                   val phantom: Boolean)
         extends AccessHistory.UndoLog with AbstractNestingLevel {
   import TxnLevelImpl._
-  import WakeupManager.blocking
+  import scala.concurrent.blocking
 
   // this is the first non-hidden parent
   val parLevel: AbstractNestingLevel = if (parUndo == null || !parUndo.phantom) parUndo else parUndo.parLevel

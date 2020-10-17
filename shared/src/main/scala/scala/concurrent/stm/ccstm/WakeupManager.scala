@@ -3,9 +3,10 @@
 package scala.concurrent.stm.ccstm
 
 
-import java.lang.reflect.{InvocationTargetException, Method}
 import java.util.concurrent.atomic.{AtomicLongArray, AtomicReferenceArray}
 import java.util.concurrent.locks.AbstractQueuedSynchronizer
+
+import scala.concurrent.blocking
 
 object WakeupManager {
   trait Event {
@@ -21,34 +22,6 @@ object WakeupManager {
     @throws(classOf[InterruptedException])
     def tryAwaitUntil(nanoDeadline: Long): Boolean
   }
-
-  // TODO: remove WakeupManager.blocking once we no longer compile for 2.9
-  // This is a hack so that we can use the new scala.concurrent.BlockContext
-  // (available in Scala >= 2.10) while still compiling for 2.9.  Although
-  // there is a bit of overhead, we are careful to only pay it when we are
-  // actually about to park the thread (which is quite expensive on its own).
-
-  val blockingMethod: Method = {
-    try {
-      Class.forName("scala.concurrent.package").getMethod("blocking", classOf[Function0[_]])
-    } catch {
-      case _: ClassNotFoundException => null
-      case _: NoSuchMethodException => null
-    }
-  }
-
-  /** Returns `body()`, cooperating with 2.10's fork-join system. */
-  def blocking[A](body: => A): A = {
-    if (blockingMethod != null) {
-      try {
-        blockingMethod.invoke(null, (() => body)).asInstanceOf[A]
-      } catch {
-        case x: InvocationTargetException => throw x.getTargetException
-      }
-    } else {
-      body
-    }
-  }
 }
 
 /** Provides a service that extends the paradigm of wait+notifyAll to allow
@@ -60,7 +33,6 @@ object WakeupManager {
  */
 private[ccstm] final class WakeupManager(numChannels: Int, numSources: Int) {
   import CCSTM.hash
-  import WakeupManager.blocking
 
   def this() = this(64, 512)
 

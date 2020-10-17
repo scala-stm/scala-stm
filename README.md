@@ -8,13 +8,13 @@ inspired by the STMs in Haskell and Clojure. It was written by Nathan Bronson
 and the Scala STM Expert Group, and it is published under a
 BSD 3-Clause License.
 
-ScalaSTM is available for Scala 2.13, 2.12, 2.11, and Dotty.
+ScalaSTM is available on the JVM for Scala 2.13, 2.12, 2.11, and Dotty (JVM), and on JS for Scala 2.13.
 It is also possible to use the library from Java, see `JavaAPITests`.
 
 You can use it in your sbt build file as follows:
 
 ```scala
-libraryDependencies += "org.scala-stm" %% "scala-stm" % "0.10.0"
+libraryDependencies += "org.scala-stm" %% "scala-stm" % "0.11.0"
 ```
 
 Or in Maven:

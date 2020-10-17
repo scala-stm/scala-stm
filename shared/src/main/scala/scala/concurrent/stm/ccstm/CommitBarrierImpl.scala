@@ -18,7 +18,7 @@ private[ccstm] object CommitBarrierImpl {
 private[ccstm] class CommitBarrierImpl(timeoutNanos: Long) extends CommitBarrier {
   import CommitBarrier._
   import CommitBarrierImpl._
-  import WakeupManager.blocking
+  import scala.concurrent.blocking
 
   private val lock = new Object
 
