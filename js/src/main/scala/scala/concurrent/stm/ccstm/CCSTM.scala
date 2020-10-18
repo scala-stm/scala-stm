@@ -76,7 +76,7 @@ private[ccstm] object CCSTM extends GV6 {
   def txnLocalMeta: Meta = withChanging(withVersion(0L, (1L << 51) - 2))
 
   // TODO: clean up the following mess
-  
+
   def owner(m: Meta): Slot = (m >> 51).asInstanceOf[Int] & 2047
   def version(m: Meta): Version = m & ((1L << 51) - 1)
   def pendingWakeups(m: Meta): Boolean = (m & (1L << 62)) != 0
@@ -101,26 +101,26 @@ private[ccstm] object CCSTM extends GV6 {
   /** Includes withUnowned and withUnchanging. */
   def withRollback(m: Meta): Meta = withUnowned(withUnchanging(m))
 
-//  //////////////// Version continuity between separate Refs
-//
-//  private def CryptMask = 31
-//  private val crypts = Array.tabulate(CryptMask + 1)(_ => new AtomicLong)
-//
-//  def embalm(identity: Int, handle: Handle[_]) {
-//    val crypt = crypts(identity & CryptMask)
-//    val v = version(handle.meta)
-//    var old = crypt.get
-//    while (v > old && !crypt.compareAndSet(old, v))
-//      old = crypt.get
-//  }
-//
-//  def resurrect(identity: Int, handle: Handle[_]) {
-//    val v0 = crypts(identity & CryptMask).get
-//    if (!handle.metaCAS(0L, withVersion(0L, v0))) {
-//      throw new IllegalStateException("Refs may only be resurrected into an old identity before use")
-//    }
-//    handle.meta = withVersion(0L, v0)
-//  }
+  //  //////////////// Version continuity between separate Refs
+  //
+  //  private def CryptMask = 31
+  //  private val crypts = Array.tabulate(CryptMask + 1)(_ => new AtomicLong)
+  //
+  //  def embalm(identity: Int, handle: Handle[_]) {
+  //    val crypt = crypts(identity & CryptMask)
+  //    val v = version(handle.meta)
+  //    var old = crypt.get
+  //    while (v > old && !crypt.compareAndSet(old, v))
+  //      old = crypt.get
+  //  }
+  //
+  //  def resurrect(identity: Int, handle: Handle[_]) {
+  //    val v0 = crypts(identity & CryptMask).get
+  //    if (!handle.metaCAS(0L, withVersion(0L, v0))) {
+  //      throw new IllegalStateException("Refs may only be resurrected into an old identity before use")
+  //    }
+  //    handle.meta = withVersion(0L, v0)
+  //  }
 
   //////////////// lock release helping
 
@@ -189,13 +189,14 @@ private[ccstm] object CCSTM extends GV6 {
     while (true) {
       spins += 1
       if (spins > SpinCount) {
-        if (Thread.interrupted)
+        if (Thread.interrupted) {
           throw new InterruptedException
-        Thread.`yield`()
+        }
+        () // Thread.`yield`()
       }
 
       val m = handle.meta
-      if (ownerAndVersion(m) != ownerAndVersion(m0)) 
+      if (ownerAndVersion(m) != ownerAndVersion(m0))
         return
 
       if (null != currentTxn)
@@ -211,8 +212,9 @@ private[ccstm] object CCSTM extends GV6 {
       var spins = 0
       while (spins < SpinCount + YieldCount) {
         spins += 1
-        if (spins > SpinCount)
-          Thread.`yield`()
+        if (spins > SpinCount) {
+          () // Thread.`yield`()
+        }
 
         val m = handle.meta
         if (ownerAndVersion(m) != ownerAndVersion(m0))
@@ -231,13 +233,13 @@ private[ccstm] object CCSTM extends GV6 {
         if (!owningRoot.status.completed) {
           if (null != currentTxn)
             currentTxn.txn.resolveWriteWriteConflict(owningRoot, handle)
-//          else if (owningRoot.txn == InTxnImpl.get) {
-//            // We are in an escaped context and are waiting for a txn that is
-//            // attached to this thread.  Big trouble!
-//            assert(false) // CCSTM on top of scala-stm doesn't have escaped contexts, this shouldn't happen
-//            owningRoot.requestRollback(
-//                Txn.OptimisticFailureCause('conflicting_reentrant_nontxn_write, Some(handle)))
-//          }
+          //          else if (owningRoot.txn == InTxnImpl.get) {
+          //            // We are in an escaped context and are waiting for a txn that is
+          //            // attached to this thread.  Big trouble!
+          //            assert(false) // CCSTM on top of scala-stm doesn't have escaped contexts, this shouldn't happen
+          //            owningRoot.requestRollback(
+          //                Txn.OptimisticFailureCause('conflicting_reentrant_nontxn_write, Some(handle)))
+          //          }
 
           owningRoot.awaitCompleted(currentTxn, handle)
           if (currentTxn != null)
@@ -325,5 +327,5 @@ class CCSTM extends CCSTMExecutor with impl.STMImpl with CCSTMRefs.Factory {
   def dynCurrentOrNull: InTxn = InTxnImpl.dynCurrentOrNull
 
   def newCommitBarrier(timeout: Long, unit: TimeUnit): CommitBarrier =
-      new CommitBarrierImpl(unit.toNanos(timeout))
+    new CommitBarrierImpl(unit.toNanos(timeout))
 }

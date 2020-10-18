@@ -175,7 +175,8 @@ object Ref extends RefCompanion {
 // normal uses of the companion object.
 
 trait RefCompanion {
-  
+  def isDotty: Boolean = true
+
   protected def factory: RefFactory
 
   /** Returns a `Ref` instance that manages a newly allocated memory location

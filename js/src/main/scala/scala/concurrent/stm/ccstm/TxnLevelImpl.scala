@@ -3,14 +3,15 @@
 package scala.concurrent.stm
 package ccstm
 
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater
-
 import scala.annotation.tailrec
 import scala.concurrent.stm.skel.{AbstractNestingLevel, RollbackError}
 
 private[ccstm] object TxnLevelImpl {
-
-  private val stateUpdater = new TxnLevelImpl(null, null, null, false).newStateUpdater
+  private def compareAndSetState(rcv: TxnLevelImpl, expect: AnyRef, update: AnyRef): Boolean =
+    (rcv._state eq expect) && {
+      rcv._state = update
+      true
+    }
 
   /** Maps blocked `InTxnImpl` that are members of a commit barrier to the
    *  `TxnLevelImpl` instance on which they are waiting.  All of the values
@@ -49,7 +50,7 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
                                   val executor: TxnExecutor,
                                   val parUndo: TxnLevelImpl,
                                   val phantom: Boolean)
-        extends AccessHistory.UndoLog with AbstractNestingLevel {
+  extends AccessHistory.UndoLog with AbstractNestingLevel {
   import TxnLevelImpl._
   import scala.concurrent.blocking
 
@@ -71,10 +72,6 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
    *  lock-step with the parent.
    */
   @volatile private var _state: AnyRef = null
-
-  private def newStateUpdater: AtomicReferenceFieldUpdater[TxnLevelImpl, AnyRef] = {
-    AtomicReferenceFieldUpdater.newUpdater(classOf[TxnLevelImpl], classOf[AnyRef], "_state")
-  }
 
   /** True if anybody is waiting for `status.completed`. */
   @volatile private var _waiters = false
@@ -105,22 +102,22 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
   }
 
   def tryActiveToCommitted(): Boolean = {
-    val f = stateUpdater.compareAndSet(this, null, Txn.Committed)
+    val f = compareAndSetState(this, null, Txn.Committed)
     if (f)
       notifyCompleted()
     f
   }
 
   def tryActiveToPreparing(): Boolean = {
-    val f = stateUpdater.compareAndSet(this, null, Txn.Preparing)
+    val f = compareAndSetState(this, null, Txn.Preparing)
     if (f && txn.commitBarrier != null)
       notifyBlockedBarrierMembers()
     f
   }
 
-  def tryPreparingToPrepared(): Boolean = stateUpdater.compareAndSet(this, Txn.Preparing, Txn.Prepared)
+  def tryPreparingToPrepared(): Boolean = compareAndSetState(this, Txn.Preparing, Txn.Prepared)
 
-  def tryPreparingToCommitting(): Boolean = stateUpdater.compareAndSet(this, Txn.Preparing, Txn.Committing)
+  def tryPreparingToCommitting(): Boolean = compareAndSetState(this, Txn.Preparing, Txn.Committing)
 
   /** Equivalent to `status` if this level is the current level, otherwise
    *  the result is undefined.
@@ -192,7 +189,7 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
               while (!status.completed && !waiter.isRolledBack) {
                 if (cb != null && hasMemberCycle(cb, waiter))
                   cb.cancelAll(CommitBarrier.MemberCycle(debugInfo))
-                wait()
+                () // wait()
               }
             }
           }
@@ -206,7 +203,9 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
     } else {
       synchronized {
         if (!status.completed)
-          blocking { while (!status.completed) wait() }
+          blocking {
+            while (!status.completed) () // wait()
+          }
       }
     }
   }
@@ -224,17 +223,17 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
     }
 
   def pushIfActive(child: TxnLevelImpl): Boolean =
-    stateUpdater.compareAndSet(this, null, child)
+    compareAndSetState(this, null, child)
 
   def attemptMerge(): Boolean = {
     // First we need to set the current state to forwarding.  Regardless of
     // whether or not this fails we still need to unlink the parent.
-    val f = (_state == null) && stateUpdater.compareAndSet(this, null, "merged")
+    val f = (_state == null) && compareAndSetState(this, null, "merged")
 
     // We must use CAS to unlink ourselves from our parent, because we race
     // with remote cancels.
     if (parUndo._state eq this)
-      stateUpdater.compareAndSet(parUndo, this, null)
+      compareAndSetState(parUndo, this, null)
 
     f
   }
@@ -256,7 +255,7 @@ private[ccstm] class TxnLevelImpl(val txn: InTxnImpl,
     val raw = _state
     if (raw == null || canAttemptLocalRollback(raw)) {
       // normal case
-      if (stateUpdater.compareAndSet(this, raw, rb)) {
+      if (compareAndSetState(this, raw, rb)) {
         notifyCompleted()
         rb
       } else

@@ -41,8 +41,9 @@ private[ccstm] final class TxnSlotManager[T <: AnyRef](range: Int, reservedSlots
       s = nextSlot(tries)
       tries += 1
       if (tries > 100) {
-        if (Thread.interrupted)
+        if (Thread.interrupted) {
           throw new InterruptedException
+        }
         Thread.`yield`()
       }
     }
@@ -102,12 +103,12 @@ private[ccstm] final class TxnSlotManager[T <: AnyRef](range: Int, reservedSlots
     }
   }
 
-//  def assertAllReleased() {
-//    for (i <- 0 until range) {
-//      val e = slots.get(i)
-//      if (null != e) {
-//        assert(false, i + " -> " + e)
-//      }
-//    }
-//  }
+  //  def assertAllReleased() {
+  //    for (i <- 0 until range) {
+  //      val e = slots.get(i)
+  //      if (null != e) {
+  //        assert(false, i + " -> " + e)
+  //      }
+  //    }
+  //  }
 }

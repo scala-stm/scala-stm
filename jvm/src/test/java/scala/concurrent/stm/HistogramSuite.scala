@@ -11,7 +11,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class HistogramSuite extends AnyFunSuite {
 
   for ((opsPerTest, name, slow) <- List((10000, "10K", false),
-                                        (1000000, "1M", true))) {
+    (1000000, "1M", true))) {
     for (buckets <- List(1, 30, 10000)) {
       for (threads <- List(1, 2, 4, 8, 16, 32, 64, 128, 256, 512) if threads <= 2 * Runtime.getRuntime.availableProcessors) {
         for (useTArray <- List(false, true)) {

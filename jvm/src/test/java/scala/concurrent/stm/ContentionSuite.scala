@@ -20,7 +20,7 @@ class ContentionSuite extends AnyFunSuite {
             val numReads = opsPerThread * readPct / 100
             val numWrites = opsPerThread - numReads
             val name = "%d refs, %d %% read, %d threads, %d ops/txn, nested=%s".format(
-                numRefs, readPct, numThreads, txnSize, nested)
+              numRefs, readPct, numThreads, txnSize, nested)
             if (count < 4) {
               test("small " + name) {
                 runTest(numRefs, numReads / 10, numWrites / 10, numThreads, txnSize, nested, "small " + name)

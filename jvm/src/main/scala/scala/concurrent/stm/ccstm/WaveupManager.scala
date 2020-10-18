@@ -44,7 +44,7 @@ private[ccstm] final class WakeupManager(numChannels: Int, numSources: Int) {
 
   private val pending = new AtomicLongArray(numSources)
   private val events = new AtomicReferenceArray[EventImpl](numChannels * ChannelSpacing)
-  
+
   /** The returned value must later be passed to `trigger`.
    *  Multiple return values may be passed to a single invocation of
    *  `trigger` by merging them with bitwise-OR.

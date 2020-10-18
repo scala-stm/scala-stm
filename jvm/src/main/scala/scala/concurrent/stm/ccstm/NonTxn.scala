@@ -32,8 +32,9 @@ private[ccstm] object NonTxn {
         return
 
       spins += 1
-      if (spins > SpinCount)
+      if (spins > SpinCount) {
         Thread.`yield`()
+      }
 
       spins < SpinCount + YieldCount
     }) ()
@@ -78,8 +79,9 @@ private[ccstm] object NonTxn {
 
       spins += 1
       if (spins > SpinCount) {
-        if (System.nanoTime >= nanoDeadline)
+        if (System.nanoTime >= nanoDeadline) {
           return false
+        }
         Thread.`yield`()
       }
 

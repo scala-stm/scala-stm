@@ -139,7 +139,7 @@ class FlipperSuite extends AnyFunSuite {
         DEFAULT_FLIP_PROB,
         System.currentTimeMillis + System.nanoTime,
         DEFAULT_REF_ARRAY_FACTORY,
-      DEFAULT_MASKED_READER).runTest()
+        DEFAULT_MASKED_READER).runTest()
     }
   }
 
@@ -158,7 +158,7 @@ class FlipperSuite extends AnyFunSuite {
 
     val R: Array[Int]     = Array.tabulate(len)({ _ => rand.nextInt(wordCount) })
     val F: Array[Boolean] = Array.tabulate(len)({ _ => rand.nextDouble() < flipProb })
-     
+
     def index(id: Int, sync: Int, trans: Int, instr: Int): Int = {
       ((id*syncCount+sync)*transCount+trans)*instrCount+instr
     }
@@ -174,10 +174,10 @@ class FlipperSuite extends AnyFunSuite {
 
       print("\ncomputing in parallel with transactions...")
       Console.flush()
-      
+
       val actual = computeParallelTxn(this, P)
 
-      println()      
+      println()
       for (i <- expected.indices) {
         assert(expected(i).single.get === actual(i).single.get)
       }

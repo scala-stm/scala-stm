@@ -12,6 +12,7 @@ import scala.compiletime.erasedValue
  *  @author Nathan Bronson
  */
 object Ref extends RefCompanion {
+  def isDotty: Boolean = false
 
   protected def factory: RefFactory = STMImpl.instance
 

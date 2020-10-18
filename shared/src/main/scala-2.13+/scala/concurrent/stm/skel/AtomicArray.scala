@@ -108,9 +108,9 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
   def apply(elems: Array[Short])   = new ofShort(  new AtomicIntegerArray(elems.map(_.toInt)))
   def apply(elems: Array[Char])    = new ofChar(   new AtomicIntegerArray(elems.map(_.toInt)))
   def apply(elems: Array[Int])     = new ofInt(    new AtomicIntegerArray(elems))
-  def apply(elems: Array[Float])   = new ofFloat(  new AtomicIntegerArray(elems.map(java.lang.Float.floatToRawIntBits)))
+  def apply(elems: Array[Float])   = new ofFloat(  new AtomicIntegerArray(elems.map(java.lang.Float.floatToIntBits /*floatToRawIntBits*/))) // SJSXXX
   def apply(elems: Array[Long])    = new ofLong(   new AtomicLongArray   (elems))
-  def apply(elems: Array[Double])  = new ofDouble( new AtomicLongArray   (elems.map(java.lang.Double.doubleToRawLongBits)))
+  def apply(elems: Array[Double])  = new ofDouble( new AtomicLongArray   (elems.map(java.lang.Double.doubleToLongBits /*doubleToRawLongBits*/)))  // SJSXXX
   def apply(elems: Array[Unit])    = new ofUnit(   elems.length)
   def apply[T <: AnyRef](elems: Array[T]) =
     new ofRef(new AtomicReferenceArray(elems.asInstanceOf[Array[AnyRef]]).asInstanceOf[AtomicReferenceArray[T]])
@@ -203,7 +203,7 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
     def this(size: Int) = this(new AtomicIntegerArray(size))
 
     private def decode(v: Int) = java.lang.Float.intBitsToFloat(v)
-    private def encode(elem: Float) = java.lang.Float.floatToRawIntBits(elem)
+    private def encode(elem: Float) = java.lang.Float.floatToIntBits(elem) // SJSXXX java.lang.Float.floatToRawIntBits(elem)
 
     def length: Int = elems.length
     def apply(index: Int): Float = decode(elems.get(index))
@@ -230,7 +230,7 @@ object AtomicArray extends StrictOptimizedClassTagSeqFactory[AtomicArray] {
     def this(size: Int) = this(new AtomicLongArray(size))
 
     private def decode(v: Long) = java.lang.Double.longBitsToDouble(v)
-    private def encode(elem: Double) = java.lang.Double.doubleToRawLongBits(elem)
+    private def encode(elem: Double) = java.lang.Double.doubleToLongBits(elem) // SJSXXX java.lang.Double.doubleToRawLongBits(elem)
 
     def length: Int = elems.length
     def apply(index: Int): Double = decode(elems.get(index))

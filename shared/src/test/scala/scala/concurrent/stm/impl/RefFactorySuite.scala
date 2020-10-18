@@ -14,11 +14,8 @@ import scala.reflect.ClassTag
 
  */
 class RefFactorySuite extends AnyFunSuite {
-  private val isDotty = {
-    val m = classOf[RefCompanion].getMethods.toList.find(_.getName == "make") // inline in Dotty and thus not found
-    m.isEmpty
-  }
-  
+  private val isDotty = Ref.isDotty
+
   private case class Fact(expected: String) extends skel.StubSTMImpl with RefFactory {
 
     private def called(w: String) = {

@@ -15,7 +15,7 @@ class WriteSkewSuite extends AnyFunSuite {
     // Two threads, each of which increments its own Ref if the other Ref is
     // even.  Neither thread should ever observe that both Refs are odd.
     // MVCC STMs will require the addition of something like Clojure's "ensure"
-    // or SQL's "select for update" to avoid the write skew. 
+    // or SQL's "select for update" to avoid the write skew.
     val refs = Array(Ref(0), Ref(0))
     val threads = new Array[Thread](2)
 
