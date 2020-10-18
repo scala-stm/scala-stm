@@ -8,7 +8,11 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import scala.reflect.ClassTag
 
+/*
 
+  testOnly scala.concurrent.stm.IsolatedRefSuite
+
+ */
 /** Performs single-threaded tests of `Ref`. */
 class IsolatedRefSuite extends AnyFunSuite {
 

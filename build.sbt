@@ -50,17 +50,31 @@ lazy val commonSettings = Seq(
   // test of TxnExecutor.transformDefault must be run by itself
   parallelExecution in Test := false,
   unmanagedSourceDirectories in Compile ++= {
-    val sourceDir0  = (sourceDirectory in Compile).value
-    val sourceDir   = file(
-      sourceDir0.getPath.replace("/jvm/" , "/shared/").replace("/js/", "/shared/")
+    val sourceDirPl = (sourceDirectory in Compile).value
+    val sourceDirSh = file(
+      sourceDirPl.getPath.replace("/jvm/" , "/shared/").replace("/js/", "/shared/")
     )
     val sv = CrossVersion.partialVersion(scalaVersion.value)
-    sv match {
-      case Some((2, n)) if n >= 13  => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14-")
-      case Some((0, _))             => Seq(sourceDir / "scala-2.13+", sourceDir / "scala-2.14+")  // Dotty
-      case _                        => Seq(sourceDir / "scala-2.13-", sourceDir / "scala-2.14-")
+    val (sub1, sub2) = sv match {
+      case Some((2, n)) if n >= 13  => ("scala-2.13+", "scala-2.14-")
+      case Some((0, _))             => ("scala-2.13+", "scala-2.14+")
+      case _                        => ("scala-2.13-", "scala-2.14-")
     }
-  }
+    Seq(sourceDirPl / sub1, sourceDirPl / sub2, sourceDirSh / sub1, sourceDirSh / sub2)
+  },
+  unmanagedSourceDirectories in Test ++= {
+    val sourceDirPl = (sourceDirectory in Test).value
+    val sourceDirSh = file(
+      sourceDirPl.getPath.replace("/jvm/" , "/shared/").replace("/js/", "/shared/")
+    )
+    val sv = CrossVersion.partialVersion(scalaVersion.value)
+    val (sub1, sub2) = sv match {
+      case Some((2, n)) if n >= 13  => ("scala-2.13+", "scala-2.14-")
+      case Some((0, _))             => ("scala-2.13+", "scala-2.14+")
+      case _                        => ("scala-2.13-", "scala-2.14-")
+    }
+    Seq(sourceDirPl / sub1, sourceDirPl / sub2, sourceDirSh / sub1, sourceDirSh / sub2)
+  },
 )
 
 ////////////////

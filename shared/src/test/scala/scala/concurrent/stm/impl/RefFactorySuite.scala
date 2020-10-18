@@ -13,8 +13,9 @@ import scala.reflect.ClassTag
   testOnly scala.concurrent.stm.impl.RefFactorySuite
 
  */
-class RefFactorySuite extends AnyFunSuite {
-  private val isDotty = Ref.isDotty
+class RefFactorySuite extends AnyFunSuite with RefFactorySuitePlatform {
+  // this is here to test Scala.js issues with 'OptManifest'
+  private val compilesRefApply = Ref(Nil)
 
   private case class Fact(expected: String) extends skel.StubSTMImpl with RefFactory {
 

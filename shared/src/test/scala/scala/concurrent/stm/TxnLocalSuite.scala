@@ -4,7 +4,11 @@ package scala.concurrent.stm
 
 import org.scalatest.funsuite.AnyFunSuite
 
+/*
 
+  testOnly scala.concurrent.stm.TxnLocalSuite
+
+ */
 class TxnLocalSuite extends AnyFunSuite {
   test("default initial value") {
     val tl = TxnLocal[String]()
