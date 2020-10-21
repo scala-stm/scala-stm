@@ -1,33 +1,6 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+// https://github.com/apache/harmony/blob/trunk/classlib/modules/concurrent/src/main/java/java/util/concurrent/locks/AbstractQueuedSynchronizer.java
 
 /*
- * This file is available under and governed by the GNU General Public
- * License version 2 only, as published by the Free Software Foundation.
- * However, the following notice accompanied the original version of this
- * file:
- *
  * Written by Doug Lea with assistance from members of JCP JSR-166
  * Expert Group and released to the public domain, as explained at
  * http://creativecommons.org/publicdomain/zero/1.0/
@@ -42,15 +15,16 @@ package java.util.concurrent.locks
 object AbstractQueuedSynchronizer {
   private object Node {
     val SHARED = new Node
-    val EXCLUSIVE : Node = null
 
-    val CANCELLED = 1
-    val SIGNAL    = -1
-    val CONDITION = -2
-    val PROPAGATE = -3
+    // val EXCLUSIVE : Node = null
+
+    final val CANCELLED = 1
+    final val SIGNAL    = -1
+    // final val CONDITION = -2
+    final val PROPAGATE = -3
   }
 
-  final private class Node {
+  private final class Node {
     var waitStatus = 0
 
     var prev: Node = null
@@ -59,12 +33,12 @@ object AbstractQueuedSynchronizer {
     var thread    : Thread  = null
     private var nextWaiter: Node    = null
 
-    /**
+    /*
      * Returns true if node is waiting in shared mode.
      */
-    final def isShared: Boolean = nextWaiter eq Node.SHARED
+    def isShared: Boolean = nextWaiter eq Node.SHARED
 
-    /**
+    /*
      * Returns previous node, or throws NullPointerException if null.
      * Use when predecessor cannot be null.  The null check could
      * be elided, but is present to help the VM.
@@ -72,24 +46,24 @@ object AbstractQueuedSynchronizer {
      * @return the predecessor of this node
      */
     @throws[NullPointerException]
-    final def predecessor = {
+    def predecessor: Node = {
       val p = prev
       if (p == null) throw new NullPointerException
       else p
     }
 
-    def this(thread: Thread, mode: Node) {
+    def this(thread: Thread, mode: Node) = {
       this()
       // Used by addWaiter
       this.nextWaiter = mode
-      this.thread = thread
+      this.thread     = thread
     }
 
-    def this(thread: Thread, waitStatus: Int) {
+    def this(thread: Thread, waitStatus: Int) = {
       this()
       // Used by Condition
       this.waitStatus = waitStatus
-      this.thread = thread
+      this.thread     = thread
     }
   }
 }
@@ -99,8 +73,8 @@ abstract class AbstractQueuedSynchronizer {
   private var head: Node = null
   private var tail: Node = null
 
-  protected def tryAcquireShared(arg: Int): Int     = throw new UnsupportedOperationException
-  protected def tryReleaseShared(arg: Int): Boolean = throw new UnsupportedOperationException
+  protected def tryAcquireShared(arg: Int): Int     // = throw new UnsupportedOperationException
+  protected def tryReleaseShared(arg: Int): Boolean // = throw new UnsupportedOperationException
 
   @throws[InterruptedException]
   def tryAcquireSharedNanos(arg: Int, nanosTimeout: Long): Boolean = {
@@ -108,7 +82,7 @@ abstract class AbstractQueuedSynchronizer {
     tryAcquireShared(arg) >= 0 || doAcquireSharedNanos(arg, nanosTimeout)
   }
 
-  /**
+  /*
    * Sets head of queue to be node, thus dequeuing. Called only by
    * acquire methods.  Also nulls out unused fields for sake of GC
    * and to suppress unnecessary signals and traversals.
@@ -121,7 +95,7 @@ abstract class AbstractQueuedSynchronizer {
     node.prev   = null
   }
 
-  /**
+  /*
    * Sets head of queue, and checks if successor may be waiting
    * in shared mode, if so propagating if either propagate > 0 or
    * PROPAGATE status was set.
@@ -130,30 +104,31 @@ abstract class AbstractQueuedSynchronizer {
    * @param propagate the return value from a tryAcquireShared
    */
   private def setHeadAndPropagate(node: Node, propagate: Int): Unit = {
-    var h = head // Record old head for check below
+    val h = head // Record old head for check below
     setHead(node)
     /*
-             * Try to signal next queued node if:
-             *   Propagation was indicated by caller,
-             *     or was recorded (as h.waitStatus either before
-             *     or after setHead) by a previous operation
-             *     (note: this uses sign-check of waitStatus because
-             *      PROPAGATE status may transition to SIGNAL.)
-             * and
-             *   The next node is waiting in shared mode,
-             *     or we don't know, because it appears null
-             *
-             * The conservatism in both of these checks may cause
-             * unnecessary wake-ups, but only when there are multiple
-             * racing acquires/releases, so most need signals now or soon
-             * anyway.
-             */ if (propagate > 0 || h == null || h.waitStatus < 0 || (h = head) == null || h.waitStatus < 0) {
+     * Try to signal next queued node if:
+     *   Propagation was indicated by caller,
+     *     or was recorded (as h.waitStatus either before
+     *     or after setHead) by a previous operation
+     *     (note: this uses sign-check of waitStatus because
+     *      PROPAGATE status may transition to SIGNAL.)
+     * and
+     *   The next node is waiting in shared mode,
+     *     or we don't know, because it appears null
+     *
+     * The conservatism in both of these checks may cause
+     * unnecessary wake-ups, but only when there are multiple
+     * racing acquires/releases, so most need signals now or soon
+     * anyway.
+     */
+    if (propagate > 0 || h == null || h.waitStatus < 0) {
       val s = node.next
       if (s == null || s.isShared) doReleaseShared()
     }
   }
 
-  /**
+  /*
    * CAS waitStatus field of a node.
    */
   private def compareAndSetWaitStatus(node: Node, expect: Int, update: Int): Boolean =
@@ -162,7 +137,7 @@ abstract class AbstractQueuedSynchronizer {
       true
     }
 
-  /**
+  /*
    * CAS next field of a node.
    */
   private def compareAndSetNext(node: Node, expect: Node, update: Node): Boolean =
@@ -171,24 +146,26 @@ abstract class AbstractQueuedSynchronizer {
       true
     }
 
-  /**
+  /*
    * Wakes up node's successor, if one exists.
    *
    * @param node the node
    */
   private def unparkSuccessor(node: Node): Unit = {
     /*
-            * If status is negative (i.e., possibly needing signal) try
-            * to clear in anticipation of signalling.  It is OK if this
-            * fails or if status is changed by waiting thread.
-            */ val ws = node.waitStatus
+     * If status is negative (i.e., possibly needing signal) try
+     * to clear in anticipation of signalling.  It is OK if this
+     * fails or if status is changed by waiting thread.
+     */
+    val ws = node.waitStatus
     if (ws < 0) compareAndSetWaitStatus(node, ws, 0)
     /*
-             * Thread to unpark is held in successor, which is normally
-             * just the next node.  But if cancelled or apparently null,
-             * traverse backwards from tail to find the actual
-             * non-cancelled successor.
-             */ var s = node.next
+     * Thread to unpark is held in successor, which is normally
+     * just the next node.  But if cancelled or apparently null,
+     * traverse backwards from tail to find the actual
+     * non-cancelled successor.
+     */
+    var s = node.next
     if (s == null || s.waitStatus > 0) {
       s = null
       var t = tail
@@ -204,23 +181,23 @@ abstract class AbstractQueuedSynchronizer {
     }
   }
 
-  /**
+  /*
    * Release action for shared mode -- signals successor and ensures
    * propagation. (Note: For exclusive mode, release just amounts
    * to calling unparkSuccessor of head if it needs signal.)
    */
   private def doReleaseShared(): Unit = {
     /*
-            * Ensure that a release propagates, even if there are other
-            * in-progress acquires/releases.  This proceeds in the usual
-            * way of trying to unparkSuccessor of head if it needs
-            * signal. But if it does not, status is set to PROPAGATE to
-            * ensure that upon release, propagation continues.
-            * Additionally, we must loop in case a new node is added
-            * while we are doing this. Also, unlike other uses of
-            * unparkSuccessor, we need to know if CAS to reset status
-            * fails, if so rechecking.
-            */
+     * Ensure that a release propagates, even if there are other
+     * in-progress acquires/releases.  This proceeds in the usual
+     * way of trying to unparkSuccessor of head if it needs
+     * signal. But if it does not, status is set to PROPAGATE to
+     * ensure that upon release, propagation continues.
+     * Additionally, we must loop in case a new node is added
+     * while we are doing this. Also, unlike other uses of
+     * unparkSuccessor, we need to know if CAS to reset status
+     * fails, if so rechecking.
+     */
     while ({
       var continue = false
       val h = head
@@ -228,20 +205,20 @@ abstract class AbstractQueuedSynchronizer {
         val ws = h.waitStatus
         if (ws == Node.SIGNAL) {
           if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0)) {
-            continue = true //todo: continue is not supported
+            continue = true
             // loop to recheck cases
           } else {
             unparkSuccessor(h)
           }
         } else if (ws == 0 && !compareAndSetWaitStatus(h, 0, Node.PROPAGATE)) {
-          continue = true //todo: continue is not supported
+          continue = true
           // loop on failed CAS
         }
       }
       var break = false
       if (!continue) {
         if (h eq head) { // loop if head changed
-          break = true //todo: break is not supported
+          break = true
         }
       }
 
@@ -249,7 +226,7 @@ abstract class AbstractQueuedSynchronizer {
     }) ()
   }
 
-  /**
+  /*
    * Checks and updates status for a node that failed to acquire.
    * Returns true if thread should block. This is the main signal
    * control in all acquire loops.  Requires that pred == node.prev.
@@ -262,16 +239,17 @@ abstract class AbstractQueuedSynchronizer {
     val ws = pred.waitStatus
     if (ws == Node.SIGNAL) {
       /*
-                  * This node has already set status asking a release
-                  * to signal it, so it can safely park.
-                  */ return true
+       * This node has already set status asking a release
+       * to signal it, so it can safely park.
+       */
+      return true
     }
     if (ws > 0) {
       var predV = pred
       /*
-                  * Predecessor was cancelled. Skip over predecessors and
-                  * indicate retry.
-                  */
+       * Predecessor was cancelled. Skip over predecessors and
+       * indicate retry.
+       */
       do {
         val pp    = predV.prev
         predV     = pp
@@ -283,22 +261,23 @@ abstract class AbstractQueuedSynchronizer {
     }
     else {
       /*
-                  * waitStatus must be 0 or PROPAGATE.  Indicate that we
-                  * need a signal, but don't park yet.  Caller will need to
-                  * retry to make sure it cannot acquire before parking.
-                  */ compareAndSetWaitStatus(pred, ws, Node.SIGNAL)
+       * waitStatus must be 0 or PROPAGATE.  Indicate that we
+       * need a signal, but don't park yet.  Caller will need to
+       * retry to make sure it cannot acquire before parking.
+       */
+      compareAndSetWaitStatus(pred, ws, Node.SIGNAL)
     }
     false
   }
 
-  /**
+  /*
    * The number of nanoseconds for which it is faster to spin
    * rather than to use timed park. A rough estimate suffices
    * to improve responsiveness with very short timeouts.
    */
   private val spinForTimeoutThreshold = 1000L
 
-  /**
+  /*
    * Acquires in shared timed mode.
    *
    * @param arg          the acquire argument
@@ -341,7 +320,7 @@ abstract class AbstractQueuedSynchronizer {
     }
   }
 
-  /**
+  /*
    * Cancels an ongoing attempt to acquire.
    *
    * @param node the node
@@ -371,7 +350,9 @@ abstract class AbstractQueuedSynchronizer {
     else { // If successor needs signal, try to set pred's next-link
       // so it will get one. Otherwise wake it up to propagate.
       var ws = 0
-      if ((pred ne head) && ((ws = pred.waitStatus) == Node.SIGNAL || (ws <= 0 && compareAndSetWaitStatus(pred, ws, Node.SIGNAL))) && pred.thread != null) {
+      if ((pred ne head) &&
+        ({ ws = pred.waitStatus; ws } == Node.SIGNAL ||
+          (ws <= 0 && compareAndSetWaitStatus(pred, ws, Node.SIGNAL))) && pred.thread != null) {
         val next = node.next
         if (next != null && next.waitStatus <= 0) compareAndSetNext(pred, predNext, next)
       }
@@ -381,7 +362,7 @@ abstract class AbstractQueuedSynchronizer {
     }
   }
 
-  /**
+  /*
    * CAS tail field. Used only by enq.
    */
   private def compareAndSetTail(expect: Node, update: Node) =
@@ -390,7 +371,7 @@ abstract class AbstractQueuedSynchronizer {
       true
     }
 
-  /**
+  /*
    * CAS head field. Used only by enq.
    */
   private def compareAndSetHead(update: Node): Boolean =
@@ -420,7 +401,7 @@ abstract class AbstractQueuedSynchronizer {
     node
   }
 
-  /**
+  /*
    * Inserts node into queue, initializing if necessary. See picture above.
    *
    * @param node the node to insert
@@ -446,7 +427,7 @@ abstract class AbstractQueuedSynchronizer {
     throw new Exception("Never here")
   }
 
-  /**
+  /*
    * Acquires in shared interruptible mode.
    *
    * @param arg the acquire argument
@@ -475,7 +456,7 @@ abstract class AbstractQueuedSynchronizer {
     finally if (failed) cancelAcquire(node)
   }
 
-  /**
+  /*
    * Convenience method to park and then check if interrupted
    *
    * @return {@code true} if interrupted
@@ -489,13 +470,13 @@ abstract class AbstractQueuedSynchronizer {
   /**
    * Acquires in shared mode, aborting if interrupted.  Implemented
    * by first checking interrupt status, then invoking at least once
-   * {@link #tryAcquireShared}, returning on success.  Otherwise the
+   * `tryAcquireShared`, returning on success.  Otherwise the
    * thread is queued, possibly repeatedly blocking and unblocking,
-   * invoking {@link #tryAcquireShared} until success or the thread
+   * invoking `tryAcquireShared` until success or the thread
    * is interrupted.
    *
    * @param arg the acquire argument.
-   *            This value is conveyed to {@link #tryAcquireShared} but is
+   *            This value is conveyed to `tryAcquireShared` but is
    *            otherwise uninterpreted and can represent anything
    *            you like.
    * @throws InterruptedException if the current thread is interrupted
@@ -509,12 +490,12 @@ abstract class AbstractQueuedSynchronizer {
   /**
    * Atomically sets synchronization state to the given updated
    * value if the current state value equals the expected value.
-   * This operation has memory semantics of a {@code volatile} read
+   * This operation has memory semantics of a `volatile` read
    * and write.
    *
    * @param expect the expected value
    * @param update the new value
-   * @return {@code true} if successful. False return indicates that the actual
+   * @return `true` if successful. False return indicates that the actual
    *         value was not equal to the expected value.
    */
   protected def compareAndSetState(expect: Int, update: Int): Boolean = { // See below for intrinsics setup to support this
@@ -526,20 +507,18 @@ abstract class AbstractQueuedSynchronizer {
 
   /**
    * Releases in shared mode.  Implemented by unblocking one or more
-   * threads if {@link #tryReleaseShared} returns true.
+   * threads if `tryReleaseShared` returns true.
    *
    * @param arg the release argument.  This value is conveyed to
-   *            {@link #tryReleaseShared} but is otherwise uninterpreted
+   *            `tryReleaseShared` but is otherwise uninterpreted
    *            and can represent anything you like.
-   * @return the value returned from {@link #tryReleaseShared}
+   * @return the value returned from `tryReleaseShared`
    */
-  def releaseShared(arg: Int): Boolean = {
-    if (tryReleaseShared(arg)) {
+  def releaseShared(arg: Int): Boolean =
+    (tryReleaseShared(arg)) && {
       doReleaseShared()
-      return true
+      true
     }
-    false
-  }
 
   /*
    * The synchronization state.
@@ -548,7 +527,7 @@ abstract class AbstractQueuedSynchronizer {
 
   /**
    * Returns the current value of synchronization state.
-   * This operation has memory semantics of a {@code volatile} read.
+   * This operation has memory semantics of a `volatile` read.
    *
    * @return current state value
    */
@@ -556,11 +535,10 @@ abstract class AbstractQueuedSynchronizer {
 
   /**
    * Sets the value of synchronization state.
-   * This operation has memory semantics of a {@code volatile} write.
+   * This operation has memory semantics of a `volatile` write.
    *
    * @param newState the new state value
    */
-  protected def setState(newState: Int): Unit = {
+  protected def setState(newState: Int): Unit =
     state = newState
-  }
 }

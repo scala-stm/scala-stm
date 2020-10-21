@@ -17,13 +17,15 @@ You can use it in your sbt build file as follows:
 libraryDependencies += "org.scala-stm" %% "scala-stm" % "0.11.0"
 ```
 
+Use `%%%` for Scala.js.
+
 Or in Maven:
 
 ```
 <dependency>
   <groupId>org.scala-stm</groupId>
   <artifactId>scala-stm_2.13</artifactId>
-  <version>0.10.0</version>
+  <version>0.11.0</version>
 </dependency>
 ```
 

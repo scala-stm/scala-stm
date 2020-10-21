@@ -1,5 +1,9 @@
 ScalaSTM - RELEASE NOTES
 
+Changes between 0.1!.0 and 0.10.0:
+
+* add preliminary Scala.js support (largely untested!)
+
 Changes between 0.10.0 and 0.9:
 
 * add Dotty support

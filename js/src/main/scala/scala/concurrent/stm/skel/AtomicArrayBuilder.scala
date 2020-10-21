@@ -149,7 +149,7 @@ object AtomicArrayBuilder {
   class ofFloat extends IntBacked[Float] {
     def addOne(elem: Float): this.type = {
       ensureSpace()
-      elems(size) = java.lang.Float.floatToIntBits(elem) // SJSXXX java.lang.Float.floatToRawIntBits(elem)
+      elems(size) = java.lang.Float.floatToIntBits /*floatToRawIntBits*/(elem)
       size += 1
       this
     }
@@ -177,7 +177,7 @@ object AtomicArrayBuilder {
   class ofDouble extends LongBacked[Double] {
     def addOne(elem: Double): this.type = {
       ensureSpace()
-      elems(size) = java.lang.Double.doubleToLongBits(elem)  // SJSXXX java.lang.Double.doubleToRawLongBits(elem)
+      elems(size) = java.lang.Double.doubleToLongBits /*doubleToRawLongBits*/(elem)
       size += 1
       this
     }

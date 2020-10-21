@@ -1,7 +1,7 @@
-def projectVersion  = "0.11.0-SNAPSHOT"
+def projectVersion  = "0.11.0"
 def mimaVersion     = "0.11.0"
 
-lazy val root = crossProject(JSPlatform, JVMPlatform).in(file("."))
+lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
   .settings(commonSettings)
   .settings(publishSettings)
   .settings(
@@ -9,10 +9,10 @@ lazy val root = crossProject(JSPlatform, JVMPlatform).in(file("."))
     mimaPreviousArtifacts := Set(organization.value %% name.value % mimaVersion)
   )
   .jvmSettings(
-    crossScalaVersions := Seq("0.27.0-RC1", "2.13.3", "2.12.12", "2.11.12"),
+    crossScalaVersions    := Seq("0.27.0-RC1", "2.13.3", "2.12.12", "2.11.12"),
   )
   .jsSettings(
-    crossScalaVersions := scalaVersion.value :: Nil,
+    crossScalaVersions    := scalaVersion.value :: Nil,
   )
 
 ////////////////////
@@ -113,14 +113,14 @@ lazy val publishSettings = Seq(
     val badDeps = (xi \\ "dependency").filter {
       x => (x \ "artifactId").text != "scala-library"
     } .toSet
-    def filt(root: Node): Node = root match {
+    def filter(root: Node): Node = root match {
       case x: Elem =>
-        val ch = x.child.filter(!badDeps(_)).map(filt)
+        val ch = x.child.filter(!badDeps(_)).map(filter)
         Elem(x.prefix, x.label, x.attributes, x.scope, ch.isEmpty, ch: _*)
 
       case x => x
     }
-    filt(xi)
+    filter(xi)
   },
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 )
