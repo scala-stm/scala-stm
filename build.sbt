@@ -9,7 +9,7 @@ lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
     mimaPreviousArtifacts := Set(organization.value %% name.value % mimaVersion)
   )
   .jvmSettings(
-    crossScalaVersions    := Seq("0.27.0-RC1", "2.13.3", "2.12.12", "2.11.12"),
+    crossScalaVersions    := Seq("3.0.0-M1", "2.13.3", "2.12.12", "2.11.12"),
   )
   .jsSettings(
     crossScalaVersions    := scalaVersion.value :: Nil,
@@ -21,8 +21,8 @@ lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
 
 lazy val deps = new {
   val test = new {
-    val junit         = "4.12"
-    val scalaTest     = "3.2.2"
+    val junit         = "4.13.1"
+    val scalaTest     = "3.2.3"
     val scalaTestPlus = s"$scalaTest.0"
   }
 }
@@ -57,7 +57,7 @@ lazy val commonSettings = Seq(
     val sv = CrossVersion.partialVersion(scalaVersion.value)
     val (sub1, sub2) = sv match {
       case Some((2, n)) if n >= 13  => ("scala-2.13+", "scala-2.14-")
-      case Some((0, _))             => ("scala-2.13+", "scala-2.14+")
+      case Some((3, _))             => ("scala-2.13+", "scala-2.14+")
       case _                        => ("scala-2.13-", "scala-2.14-")
     }
     Seq(sourceDirPl / sub1, sourceDirPl / sub2, sourceDirSh / sub1, sourceDirSh / sub2)
@@ -70,7 +70,7 @@ lazy val commonSettings = Seq(
     val sv = CrossVersion.partialVersion(scalaVersion.value)
     val (sub1, sub2) = sv match {
       case Some((2, n)) if n >= 13  => ("scala-2.13+", "scala-2.14-")
-      case Some((0, _))             => ("scala-2.13+", "scala-2.14+")
+      case Some((3, _))             => ("scala-2.13+", "scala-2.14+")
       case _                        => ("scala-2.13-", "scala-2.14-")
     }
     Seq(sourceDirPl / sub1, sourceDirPl / sub2, sourceDirSh / sub1, sourceDirSh / sub2)
