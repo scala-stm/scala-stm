@@ -10,11 +10,19 @@ import scala.concurrent.stm.skel.SimpleRandom
 import scala.util.control.Breaks
 import scala.{Symbol => Sym}
 
+/*
+
+  testOnly scala.concurrent.stm.CommitBarrierSuiteJVM
+
+ */
+// TODO: this test should probably be disabled, as `CommitBarrier` is deprecated, and tests randomly fail on CI
 class CommitBarrierSuiteJVM extends AnyFunSuite {
 
   test("timeout") {
     val refs = Array.tabulate(2) { _ => Ref(0) }
-    val cb = CommitBarrier(100, TimeUnit.MILLISECONDS)
+    val T1  = 100
+    val T2  = 300 // originally 200ms; increased for taking better into account latency on CI server
+    val cb  = CommitBarrier(T1, TimeUnit.MILLISECONDS)
     val members = Array.tabulate(2) { _ => cb.addMember() }
     val t0 = System.currentTimeMillis
     val elapsed = Array(0L, 0L)
@@ -22,7 +30,7 @@ class CommitBarrierSuiteJVM extends AnyFunSuite {
       try {
         val z = members(i).atomic { implicit txn =>
           refs(i)() = 1
-          if (i == 1) Thread.sleep(200)
+          if (i == 1) Thread.sleep(T2)
         }
         assert(z === Left(CommitBarrier.Timeout))
         assert(refs(i).single() === 0)
@@ -30,8 +38,8 @@ class CommitBarrierSuiteJVM extends AnyFunSuite {
         elapsed(i) = System.currentTimeMillis - t0
       }
     }
-    assert(elapsed(0) >= 100 && elapsed(0) < 150, elapsed.toList)
-    assert(elapsed(1) >= 200, elapsed.toList)
+    assert(elapsed(0) >= T1 && elapsed(0) < (T1 + T2)/2, elapsed.toList)
+    assert(elapsed(1) >= T2, elapsed.toList)
   }
 
   test("interrupt") {
