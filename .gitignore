@@ -9,3 +9,4 @@ project/boot/
 dep_tests/sbt/project/boot/
 cover/
 _site/
+/.bsp/

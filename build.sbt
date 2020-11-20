@@ -9,7 +9,7 @@ lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
     mimaPreviousArtifacts := Set(organization.value %% name.value % mimaVersion)
   )
   .jvmSettings(
-    crossScalaVersions    := Seq("3.0.0-M1", "2.13.3", "2.12.12", "2.11.12"),
+    crossScalaVersions    := Seq("3.0.0-M1", "2.13.4", "2.12.12", "2.11.12"),
   )
   .jsSettings(
     crossScalaVersions    := scalaVersion.value :: Nil,

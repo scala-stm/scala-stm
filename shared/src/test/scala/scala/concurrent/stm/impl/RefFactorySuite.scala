@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
   testOnly scala.concurrent.stm.impl.RefFactorySuite
 
  */
-class RefFactorySuite extends AnyFunSuite with RefFactorySuitePlatform {
+class RefFactorySuite extends AnyFunSuite with SuitePlatform {
   // this is here to test Scala.js issues with 'OptManifest'
   private val compilesRefApply = Ref(Nil)
 
@@ -41,44 +41,53 @@ class RefFactorySuite extends AnyFunSuite with RefFactorySuitePlatform {
     var factory: RefFactory = null
   }
 
+  def jsUndefined(body: => Unit): Unit =
+    if (isJS) {
+      println("[warn] Ref.apply is currently ambiguous in Scala.js due to erasure of numeric types!")
+    } else {
+      body
+    }
+
   test("signature specialization") {
-    TestRef.factory = Fact("Boolean")
-    TestRef(false)
+    jsUndefined {
+      TestRef.factory = Fact("Boolean")
+      TestRef(false)
 
-    TestRef.factory = Fact("Byte")
-    TestRef(0 : Byte)
+      TestRef.factory = Fact("Byte")
+      TestRef(0 : Byte)
 
-    TestRef.factory = Fact("Short")
-    TestRef(0 : Short)
+      TestRef.factory = Fact("Short")
+      TestRef(0 : Short)
 
-    TestRef.factory = Fact("Char")
-    TestRef(0 : Char)
+      TestRef.factory = Fact("Char")
+      TestRef(0 : Char)
 
-    TestRef.factory = Fact("Int")
-    TestRef(0 : Int)
+      TestRef.factory = Fact("Int")
+      TestRef(0 : Int)
 
-    TestRef.factory = Fact("Float")
-    TestRef(0 : Float)
+      TestRef.factory = Fact("Float")
+      TestRef(0 : Float)
 
-    TestRef.factory = Fact("Long")
-    TestRef(0 : Long)
+      TestRef.factory = Fact("Long")
+      TestRef(0 : Long)
 
-    TestRef.factory = Fact("Double")
-    TestRef(0 : Double)
+      TestRef.factory = Fact("Double")
+      TestRef(0 : Double)
 
-    TestRef.factory = Fact("Unit")
-    TestRef(())
+      TestRef.factory = Fact("Unit")
+      TestRef(())
 
-    TestRef.factory = Fact("Any")
+      TestRef.factory = Fact("Any")
 
-    TestRef("abc")
-    TestRef(null)
-    
-    // these are improved for Dotty:
-    if (isDotty) TestRef.factory = Fact("Int")
-    TestRef(0.asInstanceOf[AnyRef])
-    val x: Any = 0
-    TestRef(x)
+      TestRef("abc")
+      TestRef(null)
+
+      // these are improved for Dotty:
+      if (isDotty) TestRef.factory = Fact("Int")
+      TestRef(0.asInstanceOf[AnyRef])
+      val x: Any = 0
+      TestRef(x)
+    }
   }
 
   test("missing manifest TestRef.apply") {
@@ -86,13 +95,15 @@ class RefFactorySuite extends AnyFunSuite with RefFactorySuitePlatform {
 
     def go[T](x: T) = TestRef(x)
 
-    go(null)
-    go("abc")
-    // these are improved for Dotty:
-    if (isDotty) TestRef.factory = Fact("Int")
-    go(123)
-    if (isDotty) TestRef.factory = Fact("Double")
-    go(1.23)
+    jsUndefined {
+      go(null)
+      go("abc")
+      // these are improved for Dotty:
+      if (isDotty) TestRef.factory = Fact("Int")
+      go(123)
+      if (isDotty) TestRef.factory = Fact("Double")
+      go(1.23)
+    }
   }
 
   test("dynamic specialization") {
@@ -100,22 +111,24 @@ class RefFactorySuite extends AnyFunSuite with RefFactorySuitePlatform {
       TestRef.factory = Fact(which)
       TestRef(v0)
     }
-    
-    go(false, "Boolean")
-    go(0 : Byte, "Byte") 
-    go(0 : Short, "Short") 
-    go(0 : Char, "Char")
-    go(0 : Int, "Int")
-    go(0 : Float, "Float") 
-    go(0 : Long, "Long") 
-    go(0 : Double, "Double") 
-    go((), "Unit")
-    go("abc", "Any")
-//    go(null, "Any")
-    go(null.asInstanceOf[AnyRef], "Any")
-    go(0.asInstanceOf[AnyRef], if (isDotty) "Int" else "Any")
-    val x: Any = 0
-    go(x, if (isDotty) "Int" else "Any")
+
+    jsUndefined {
+      go(false, "Boolean")
+      go(0 : Byte, "Byte")
+      go(0 : Short, "Short")
+      go(0 : Char, "Char")
+      go(0 : Int, "Int")
+      go(0 : Float, "Float")
+      go(0 : Long, "Long")
+      go(0 : Double, "Double")
+      go((), "Unit")
+      go("abc", "Any")
+      //    go(null, "Any")
+      go(null.asInstanceOf[AnyRef], "Any")
+      go(0.asInstanceOf[AnyRef], if (isDotty) "Int" else "Any")
+      val x: Any = 0
+      go(x, if (isDotty) "Int" else "Any")
+    }
   }
 
   test("default value specialization") {
@@ -126,7 +139,7 @@ class RefFactorySuite extends AnyFunSuite with RefFactorySuitePlatform {
     }
 
     // these do not specialize in Dotty, because we do not use the ClassTag!
-    if (!isDotty) {
+    if (!isDotty && !isJS) {
       go(false, "Boolean")
       go(0 : Byte, "Byte")
       go(0 : Short, "Short")
@@ -163,5 +176,4 @@ class RefFactorySuite extends AnyFunSuite with RefFactorySuitePlatform {
     go[Null]()
     go[Any]()
   }
-
 }

@@ -248,10 +248,10 @@ class TxnLocalSuite extends AnyFunSuite {
   test("auto-register afterRollback") {
     var result: Txn.Status = null
     val tl = TxnLocal(10, afterRollback = { result = _ })
-    intercept[ArrayIndexOutOfBoundsException] {
+    intercept[NotImplementedError] {
       atomic { implicit txn =>
         tl() = 20
-        throw new ArrayIndexOutOfBoundsException(-1)
+        throw new NotImplementedError()
       }
     }
     assert(result != null && result.isInstanceOf[Txn.RolledBack])

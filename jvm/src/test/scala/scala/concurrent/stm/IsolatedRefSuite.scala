@@ -2,15 +2,17 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.TimeUnit
-
 import org.scalatest.funsuite.AnyFunSuite
 
+import java.util.concurrent.TimeUnit
 import scala.reflect.ClassTag
 
 /*
 
   testOnly scala.concurrent.stm.IsolatedRefSuite
+
+  this fails for unknown reasons in Scala.js
+  (fails without reporting why it fails)
 
  */
 /** Performs single-threaded tests of `Ref`. */

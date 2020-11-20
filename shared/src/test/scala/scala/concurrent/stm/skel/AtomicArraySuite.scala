@@ -7,7 +7,12 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import scala.reflect.ClassTag
 
-class AtomicArraySuite extends AnyFunSuite {
+/*
+
+  testOnly scala.concurrent.stm.skel.AtomicArraySuite
+
+ */
+class AtomicArraySuite extends AnyFunSuite with SuitePlatform {
 
   test("Unit") {
     runIsolatedTest(List((), (), ()))
@@ -81,29 +86,31 @@ class AtomicArraySuite extends AnyFunSuite {
       assert(aa.swap(i, values(i)) === prev)
     }
 
-    intercept[IndexOutOfBoundsException] {
-      aa(-1)
-    }
-    intercept[IndexOutOfBoundsException] {
-      aa(-1) = aa(0)
-    }
-    intercept[IndexOutOfBoundsException] {
-      aa(aa.length)
-    }
-    intercept[IndexOutOfBoundsException] {
-      aa(aa.length) = aa(0)
-    }
-    intercept[IndexOutOfBoundsException] {
-      aa.compareAndSet(-1, aa(0), aa(0))
-    }
-    intercept[IndexOutOfBoundsException] {
-      aa.compareAndSet(aa.length, aa(0), aa(0))
-    }
-    intercept[IndexOutOfBoundsException] {
-      aa(Int.MinValue)
-    }
-    intercept[IndexOutOfBoundsException] {
-      aa(Int.MaxValue)
+    if (!isJS) {  // screw this platform with its random behaviour
+      intercept[IndexOutOfBoundsException] {
+        aa(-1)
+      }
+      intercept[IndexOutOfBoundsException] {
+        aa(-1) = aa(0)
+      }
+      intercept[IndexOutOfBoundsException] {
+        aa(aa.length)
+      }
+      intercept[IndexOutOfBoundsException] {
+        aa(aa.length) = aa(0)
+      }
+      intercept[IndexOutOfBoundsException] {
+        aa.compareAndSet(-1, aa(0), aa(0))
+      }
+      intercept[IndexOutOfBoundsException] {
+        aa.compareAndSet(aa.length, aa(0), aa(0))
+      }
+      intercept[IndexOutOfBoundsException] {
+        aa(Int.MinValue)
+      }
+      intercept[IndexOutOfBoundsException] {
+        aa(Int.MaxValue)
+      }
     }
 
     val copy = aa.clone
