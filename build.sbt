@@ -1,6 +1,10 @@
 def projectVersion  = "0.11.0"
 def mimaVersion     = "0.11.0"
 
+// sonatype plugin requires that these are in global
+ThisBuild / version      := projectVersion
+ThisBuild / organization := "org.scala-stm"
+
 lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
   .settings(commonSettings)
   .settings(publishSettings)
@@ -9,7 +13,7 @@ lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
     mimaPreviousArtifacts := Set(organization.value %% name.value % mimaVersion)
   )
   .jvmSettings(
-    crossScalaVersions    := Seq("3.0.0-M1", "2.13.4", "2.12.12", "2.11.12"),
+    crossScalaVersions    := Seq("3.0.0-M3", "2.13.4", "2.12.12", "2.11.12"),
   )
   .jsSettings(
     crossScalaVersions    := scalaVersion.value :: Nil,
@@ -28,9 +32,11 @@ lazy val deps = new {
 }
 
 lazy val commonSettings = Seq(
-  organization       := "org.scala-stm",
-  version            := projectVersion,
+//  organization       := "org.scala-stm",
+//  version            := projectVersion,
   description        := "A library for Software Transactional Memory in Scala",
+  homepage           := Some(url("https://nbronson.github.com/scala-stm/")),
+  licenses           := Seq("""BSD 3-Clause "New" or "Revised" License""" -> url("https://spdx.org/licenses/BSD-3-Clause")),
   scalaVersion       := "2.13.3",
   scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature", "-Xsource:2.13"),
   scalacOptions     ++= {
@@ -82,45 +88,27 @@ lazy val commonSettings = Seq(
 ////////////////
 
 lazy val publishSettings = Seq(
-  homepage := Some(url("https://nbronson.github.com/scala-stm/")),
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/scala-stm/scala-stm"),
-      "scm:git:git@github.com:scala-stm/scala-stm.git"
-    )
-  ),
-  licenses := Seq("""BSD 3-Clause "New" or "Revised" License""" -> url("https://spdx.org/licenses/BSD-3-Clause")),
+  publishMavenStyle := true,
+  publishArtifact in Test := false,
+  pomIncludeRepository := { _ => false },
   developers := List(
     Developer(
-      "nbronson",
-      "Nathan Bronson",
-      "ngbronson@gmail.com",
-      url("https://github.com/nbronson")
+      id    = "nbronson",
+      name  = "Nathan Bronson",
+      email = "ngbronson@gmail.com",
+      url   = url("https://github.com/nbronson")
+    ),
+    Developer(
+      id    = "sciss",
+      name  = "Hanns Holger Rutz",
+      email = "contact@sciss.de",
+      url   = url("https://www.sciss.de")
     )
   ),
-  publishMavenStyle := true,
-  publishTo := {
-    val base = "https://oss.sonatype.org"
-    Some(if (isSnapshot.value)
-      "snapshots" at s"$base/content/repositories/snapshots/"
-    else
-      "releases"  at s"$base/service/local/staging/deploy/maven2/"
-    )
+  scmInfo := {
+    val h = "github.com"
+    val a = s"scala-stm/${name.value}"
+    Some(ScmInfo(url(s"https://$h/$a"), s"scm:git@$h:$a.git"))
   },
-  // exclude scalatest from the Maven POM
-  pomPostProcess := { xi: scala.xml.Node =>
-    import scala.xml._
-    val badDeps = (xi \\ "dependency").filter {
-      x => (x \ "artifactId").text != "scala-library"
-    } .toSet
-    def filter(root: Node): Node = root match {
-      case x: Elem =>
-        val ch = x.child.filter(!badDeps(_)).map(filter)
-        Elem(x.prefix, x.label, x.attributes, x.scope, ch.isEmpty, ch: _*)
-
-      case x => x
-    }
-    filter(xi)
-  },
-  credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 )
+
