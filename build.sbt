@@ -1,4 +1,4 @@
-def projectVersion  = "0.11.0"
+def projectVersion  = "0.11.1"
 def mimaVersion     = "0.11.0"
 
 // sonatype plugin requires that these are in global
