@@ -13,7 +13,7 @@ lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
     mimaPreviousArtifacts := Set(organization.value %% name.value % mimaVersion)
   )
   .jvmSettings(
-    crossScalaVersions    := Seq("3.0.0-RC1", "2.13.4", "2.12.13", "2.11.12"),
+    crossScalaVersions    := Seq("3.0.0-RC2", "2.13.5", "2.12.13", "2.11.12"),
   )
   .jsSettings(
     crossScalaVersions    := scalaVersion.value :: Nil,
@@ -26,7 +26,7 @@ lazy val root = crossProject(JVMPlatform, JSPlatform).in(file("."))
 lazy val deps = new {
   val test = new {
     val junit         = "4.13.1"
-    val scalaTest     = "3.2.4"
+    val scalaTest     = "3.2.7"
     val scalaTestPlus = s"$scalaTest.0"
   }
 }
@@ -37,7 +37,7 @@ lazy val commonSettings = Seq(
   description        := "A library for Software Transactional Memory in Scala",
   homepage           := Some(url("https://nbronson.github.com/scala-stm/")),
   licenses           := Seq("""BSD 3-Clause "New" or "Revised" License""" -> url("https://spdx.org/licenses/BSD-3-Clause")),
-  scalaVersion       := "2.13.4",
+  scalaVersion       := "2.13.5",
   scalacOptions     ++= Seq("-deprecation", "-unchecked", "-feature", "-Xsource:2.13"),
   scalacOptions     ++= {
     if (scalaVersion.value.startsWith("2.11")) Nil else Seq("-Xlint:-unused,_")
