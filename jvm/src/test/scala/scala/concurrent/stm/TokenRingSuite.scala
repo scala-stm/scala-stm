@@ -2,9 +2,9 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.CyclicBarrier
-
 import org.scalatest.funsuite.AnyFunSuite
+
+import java.util.concurrent.CyclicBarrier
 
 
 /** This test uses the transactional retry mechanism to pass a token around a

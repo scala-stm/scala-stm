@@ -2,10 +2,10 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.CyclicBarrier
-
 import org.scalatest.Tag
 import org.scalatest.funsuite.AnyFunSuite
+
+import java.util.concurrent.CyclicBarrier
 
 
 class HistogramSuite extends AnyFunSuite {

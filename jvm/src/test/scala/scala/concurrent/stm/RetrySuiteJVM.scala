@@ -2,10 +2,9 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.CountDownLatch
-
 import org.scalatest.funsuite.AnyFunSuite
 
+import java.util.concurrent.CountDownLatch
 import scala.{Symbol => Sym}
 
 /** Contains extended tests of `retry`, `retryFor` and `tryAwait`.  Some basic

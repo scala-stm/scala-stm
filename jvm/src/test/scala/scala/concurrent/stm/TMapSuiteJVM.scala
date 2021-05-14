@@ -4,7 +4,6 @@ package scala.concurrent.stm
 
 import org.scalatest.funsuite.AnyFunSuite
 
-import scala.concurrent.stm.compat._  // used
 import scala.concurrent.stm.skel.SimpleRandom
 
 class TMapSuiteJVM extends AnyFunSuite {

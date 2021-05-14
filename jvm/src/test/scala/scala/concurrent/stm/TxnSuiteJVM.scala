@@ -2,9 +2,9 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.CountDownLatch
-
 import org.scalatest.funsuite.AnyFunSuite
+
+import java.util.concurrent.CountDownLatch
 
 class TxnSuiteJVM extends AnyFunSuite {
   test("basic retry") {

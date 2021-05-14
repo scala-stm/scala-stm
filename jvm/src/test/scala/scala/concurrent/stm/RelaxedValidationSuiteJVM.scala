@@ -2,9 +2,9 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.CountDownLatch
-
 import org.scalatest.funsuite.AnyFunSuite
+
+import java.util.concurrent.CountDownLatch
 
 /** Tests of the relaxed validation methods `getWith` and `relaxedGet` in
  *  multi-threaded contexts.  Single-threaded tests are found in

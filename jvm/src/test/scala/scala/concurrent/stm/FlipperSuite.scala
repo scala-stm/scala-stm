@@ -2,10 +2,9 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.CyclicBarrier
-
 import org.scalatest.funsuite.AnyFunSuite
 
+import java.util.concurrent.CyclicBarrier
 import scala.collection.immutable
 
 

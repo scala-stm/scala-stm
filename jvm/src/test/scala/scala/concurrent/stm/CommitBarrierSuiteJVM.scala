@@ -2,10 +2,9 @@
 
 package scala.concurrent.stm
 
-import java.util.concurrent.{LinkedTransferQueue, TimeUnit}
-
 import org.scalatest.funsuite.AnyFunSuite
 
+import java.util.concurrent.{LinkedTransferQueue, TimeUnit}
 import scala.concurrent.stm.skel.SimpleRandom
 import scala.util.control.Breaks
 import scala.{Symbol => Sym}

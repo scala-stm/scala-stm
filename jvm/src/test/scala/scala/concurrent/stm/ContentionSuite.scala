@@ -4,7 +4,7 @@ package scala.concurrent.stm
 
 import org.scalatest.funsuite.AnyFunSuite
 
-import skel.SimpleRandom
+import scala.concurrent.stm.skel.SimpleRandom
 
 class ContentionSuite extends AnyFunSuite {
   // probability that two txns of size M touch the same element out of N
